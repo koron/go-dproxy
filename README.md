@@ -29,7 +29,7 @@ _, err := dproxy.New(v).M("cities").A(0).Float64()
 // n == 200, got a float64
 n, _ := dproxy.New(v).M("cities").A(3).Float64()
 
-// be able to access nested.
+// can be chained.
 dproxy.New(v).M("data").M("custom").A(0).String()
 
 // err.Error() == "not found: data.kustom", wrong query can be verified.
