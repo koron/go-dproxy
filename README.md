@@ -63,7 +63,7 @@ _, err = dproxy.New(v).M("data").M("kustom").String()
     p.M("cities").A(3)
     ```
 
-5.  Get a value at last!
+5.  Get a value finally.
 
     ```go
     n, _ := p.M("cities").A(3).Int64()
