@@ -20,7 +20,7 @@ json.Unmarshal(byte[](`
   }
 `), &v)
 
-// s == "tokyo", got a sting.
+// s == "tokyo", got a string.
 s, _ := dproxy.New(v).M("cities").A(0).String()
 
 // err != nil, type not matched.
