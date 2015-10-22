@@ -32,32 +32,32 @@ n, _ := dproxy.New(v).M("cities").A(3).Float64()
 // be able to access nested.
 dproxy.New(v).M("data").M("custom").A(0).String()
 
-_, err = dproxy.New(v).M("data").M("kustom").String()
 // err.Error() == "not found: data.kustom", wrong query can be verified.
+_, err = dproxy.New(v).M("data").M("kustom").String()
 ```
 
 
 ## Getting started
 
-1.  wrap a value (`interface{}`) with `dproxy.New()` get `dproxy.Proxy`.
+1.  Wrap a value (`interface{}`) with `dproxy.New()` get `dproxy.Proxy`.
 
     ```go
     p := dproxy.New(v) // v should be a value of interface{}
     ```
 
-2.  query as a map by `M()`, it returns `dproxy.Proxy`.
+2.  Query as a map (`map[string]interface{}`)by `M()`, returns `dproxy.Proxy`.
 
     ```go
     p.M("cities")
     ```
 
-3.  query as an array with `A()`, it returns `dproxy.Proxy`.
+3.  Query as an array (`[]interface{}`) with `A()`, returns `dproxy.Proxy`.
 
     ```go
     p.A(3)
     ```
 
-4.  Can be chained above queris.
+4.  Therefore, can be chained queries.
 
     ```go
     p.M("cities").A(3)
@@ -69,14 +69,14 @@ _, err = dproxy.New(v).M("data").M("kustom").String()
     n, _ := p.M("cities").A(3).Int64()
     ```
 
-6.  You'll get some error, if there are some mistake in query.
+6.  You'll get an error when getting a value, if there were some mistakes.
 
     ```go
     // OOPS! "kustom" is typo, must be "custom"
     _, err := p.M("data").M("kustom").A(3).Int64()
 
-    fmt.Println(err)
     // "not found: data.kustom"
+    fmt.Println(err)
     ```
 
     You can verify queries easily.
