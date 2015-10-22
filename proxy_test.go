@@ -41,9 +41,9 @@ func TestReadme(t *testing.T) {
 		t.Error("data.custom[2] must be \"female\":", err)
 	}
 
-	_, err = New(v).M("data").M("castom").String()
-	if err == nil || err.Error() != "not found: data.castom" {
-		t.Error("err is not \"not found: data.castom\":", err)
+	_, err = New(v).M("data").M("kustom").String()
+	if err == nil || err.Error() != "not found: data.kustom" {
+		t.Error("err is not \"not found: data.kustom\":", err)
 	}
 }
 
