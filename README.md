@@ -4,6 +4,12 @@ dProxy is a proxy to access `interface{}` (document) by simple query.
 It is intetedd to be used with `json.Unmarshal()` or `json.NewDecorder()`.
 
 ```go
+import (
+  "encoding/json"
+
+  "github.com/koron/go-dproxy"
+)
+
 var v interface{}
 json.Unmarshal(byte[](`
   "cities": [ "tokyo", 100, "osaka", 200, "hakata", 300 ],
