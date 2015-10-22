@@ -18,7 +18,7 @@ s, _ := dproxy.New(v).M("cities").A(0).String()
 // err != nil, type not matched.
 _, err := dproxy.New(v).M("cities").A(0).Float64()
 
-// n == 0, got a int64
+// n == 0, got a float64
 n, _ := dproxy.New(v).M("cities").A(1).Float64()
 
 // be able to access nested.
