@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func parseJson(s string) interface{} {
+func parseJSON(s string) interface{} {
 	var v interface{}
 	if err := json.Unmarshal([]byte(s), &v); err != nil {
 		panic(err)
@@ -14,7 +14,7 @@ func parseJson(s string) interface{} {
 }
 
 func TestReadme(t *testing.T) {
-	v := parseJson(`{
+	v := parseJSON(`{
 		"cities": [ "tokyo", 100, "osaka", 200, "hakata", 300 ],
 		"data": {
 			"custom": [ "male", 21, "female", 22 ]
@@ -48,7 +48,7 @@ func TestReadme(t *testing.T) {
 }
 
 func TestMapBool(t *testing.T) {
-	v := parseJson(`{
+	v := parseJSON(`{
 		"foo": true,
 		"bar": false
 	}`)

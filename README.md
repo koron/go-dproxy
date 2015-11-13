@@ -13,12 +13,12 @@ import (
 )
 
 var v interface{}
-json.Unmarshal(byte[](`
+json.Unmarshal(byte[](`{
   "cities": [ "tokyo", 100, "osaka", 200, "hakata", 300 ],
   "data": {
     "custom": [ "male", 23, "female", 24 ]
   }
-`), &v)
+}`), &v)
 
 // s == "tokyo", got a string.
 s, _ := dproxy.New(v).M("cities").A(0).String()
