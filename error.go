@@ -24,11 +24,18 @@ type Error interface {
 
 type errorProxy struct {
 	errorType ErrorType
-	parent    Proxy
-	address   string
+	parent    frame
+	label     string
 	expected  Type
 	actual    Type
 }
+
+// errorProxy implements error, Proxy and ProxySet.
+var (
+	_ error    = (*errorProxy)(nil)
+	_ Proxy    = (*errorProxy)(nil)
+	_ ProxySet = (*errorProxy)(nil)
+)
 
 func (p *errorProxy) Nil() bool {
 	return false
@@ -66,12 +73,28 @@ func (p *errorProxy) M(k string) Proxy {
 	return p
 }
 
-func (p *errorProxy) getParent() Proxy {
+func (p *errorProxy) Empty() bool {
+	return true
+}
+
+func (p *errorProxy) Len() int {
+	return 0
+}
+
+func (p *errorProxy) Q(k string) ProxySet {
+	return p
+}
+
+func (p *errorProxy) Qc(k string) ProxySet {
+	return p
+}
+
+func (p *errorProxy) parentFrame() frame {
 	return p.parent
 }
 
-func (p *errorProxy) getAddress() string {
-	return p.address
+func (p *errorProxy) frameLabel() string {
+	return p.label
 }
 
 func (p *errorProxy) Error() string {
@@ -91,22 +114,10 @@ func (p *errorProxy) ErrorType() ErrorType {
 }
 
 func (p *errorProxy) FullAddress() string {
-	x := 0
-	for q := Proxy(p); q != nil; q = q.getParent() {
-		x += len(q.getAddress())
-	}
-	b := make([]byte, x)
-	for q := Proxy(p); q != nil; q = q.getParent() {
-		x -= len(q.getAddress())
-		copy(b[x:], q.getAddress())
-	}
-	if b[0] == '.' {
-		return string(b[1:])
-	}
-	return string(b)
+	return fullAddress(p)
 }
 
-func mismatchError(p Proxy, expected Type, actual interface{}) *errorProxy {
+func typeError(p frame, expected Type, actual interface{}) *errorProxy {
 	return &errorProxy{
 		errorType: Etype,
 		parent:    p,
@@ -115,10 +126,10 @@ func mismatchError(p Proxy, expected Type, actual interface{}) *errorProxy {
 	}
 }
 
-func addressError(p Proxy, address string) *errorProxy {
+func notfoundError(p frame, address string) *errorProxy {
 	return &errorProxy{
 		errorType: Enotfound,
 		parent:    p,
-		address:   address,
+		label:     address,
 	}
 }

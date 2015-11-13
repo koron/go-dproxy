@@ -29,8 +29,22 @@ type Proxy interface {
 	// M returns an item from value treated as the map.
 	M(k string) Proxy
 
-	getParent() Proxy
-	getAddress() string
+	// Q returns items (TODO: brush up)
+	Q(k string) ProxySet
+
+	// Proxy implements frame.
+	frame
+}
+
+// ProxySet proxies to access to set.
+type ProxySet interface {
+	Empty() bool
+	Len() int
+	A(n int) Proxy
+	Q(k string) ProxySet
+	Qc(k string) ProxySet
+
+	frame
 }
 
 // New creates a new proxy object.
