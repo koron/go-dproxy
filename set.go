@@ -3,38 +3,58 @@ package dproxy
 import "strconv"
 
 type setProxy struct {
-	proxies []Proxy
-	parent  frame
-	label   string
+	values []interface{}
+	parent frame
+	label  string
 }
 
 // setProxy implements ProxySet
 var _ ProxySet = (*setProxy)(nil)
 
 func (p *setProxy) Empty() bool {
-	return len(p.proxies) == 0
+	return len(p.values) == 0
 }
 
 func (p *setProxy) Len() int {
-	return len(p.proxies)
+	return len(p.values)
 }
 
 func (p *setProxy) A(n int) Proxy {
 	a := "[" + strconv.Itoa(n) + "]"
-	if n < 0 || n >= len(p.proxies) {
+	if n < 0 || n >= len(p.values) {
 		return notfoundError(p, a)
 	}
-	return p.proxies[n]
+	return &valueProxy{
+		value:  p.values[n],
+		parent: p,
+		label:  a,
+	}
 }
 
 func (p *setProxy) Q(k string) ProxySet {
-	// TODO: impl me
-	return nil
+	w := findAll(p.values, k)
+	return &setProxy{
+		values: w,
+		parent: p,
+		label:  ".." + k,
+	}
 }
 
 func (p *setProxy) Qc(k string) ProxySet {
-	// TODO: impl me
-	return nil
+	r := make([]interface{}, 0, len(p.values))
+	for _, v := range p.values {
+		switch v := v.(type) {
+		case map[string]interface{}:
+			if w, ok := v[k]; ok {
+				r = append(r, w)
+			}
+		}
+	}
+	return &setProxy{
+		values: r,
+		parent: p,
+		label:  ".." + k,
+	}
 }
 
 func (p *setProxy) parentFrame() frame {
@@ -43,4 +63,25 @@ func (p *setProxy) parentFrame() frame {
 
 func (p *setProxy) frameLabel() string {
 	return p.label
+}
+
+func findAll(v interface{}, k string) []interface{} {
+	return findAllImpl(v, k, make([]interface{}, 0, 10))
+}
+
+func findAllImpl(v interface{}, k string, r []interface{}) []interface{} {
+	switch v := v.(type) {
+	case map[string]interface{}:
+		for n, w := range v {
+			if n == k {
+				r = append(r, w)
+			}
+			r = findAllImpl(w, k, r)
+		}
+	case []interface{}:
+		for _, w := range v {
+			r = findAllImpl(w, k, r)
+		}
+	}
+	return r
 }

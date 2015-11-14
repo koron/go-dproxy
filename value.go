@@ -11,13 +11,6 @@ type valueProxy struct {
 // valueProxy implements Proxy.
 var _ Proxy = (*valueProxy)(nil)
 
-func newValueProxy(v interface{}, parent frame) *valueProxy {
-	return &valueProxy{
-		value:  v,
-		parent: parent,
-	}
-}
-
 func (p *valueProxy) Nil() bool {
 	return p.value == nil
 }
@@ -128,8 +121,12 @@ func (p *valueProxy) M(k string) Proxy {
 }
 
 func (p *valueProxy) Q(k string) ProxySet {
-	//  TODO: impl me
-	return nil
+	w := findAll(p.value, k)
+	return &setProxy{
+		values: w,
+		parent: p,
+		label:  ".." + k,
+	}
 }
 
 func (p *valueProxy) parentFrame() frame {
