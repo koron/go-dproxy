@@ -22,3 +22,18 @@ func fullAddress(f frame) string {
 	}
 	return string(b)
 }
+
+type simpleFrame struct {
+	parent frame
+	label  string
+}
+
+var _ frame = (*simpleFrame)(nil)
+
+func (f *simpleFrame) parentFrame() frame {
+	return f.parent
+}
+
+func (f *simpleFrame) frameLabel() string {
+	return f.label
+}

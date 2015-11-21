@@ -1,6 +1,9 @@
 package dproxy
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 // ErrorType is type of errors
 type ErrorType int
@@ -81,6 +84,30 @@ func (p *errorProxy) Len() int {
 	return 0
 }
 
+func (p *errorProxy) BoolArray() ([]bool, error) {
+	return nil, p
+}
+
+func (p *errorProxy) Int64Array() ([]int64, error) {
+	return nil, p
+}
+
+func (p *errorProxy) Float64Array() ([]float64, error) {
+	return nil, p
+}
+
+func (p *errorProxy) String64Array() ([]string, error) {
+	return nil, p
+}
+
+func (p *errorProxy) ArrayArray() ([][]interface{}, error) {
+	return nil, p
+}
+
+func (p *errorProxy) MapArray() ([]map[string]interface{}, error) {
+	return nil, p
+}
+
 func (p *errorProxy) Q(k string) ProxySet {
 	return p
 }
@@ -124,6 +151,14 @@ func typeError(p frame, expected Type, actual interface{}) *errorProxy {
 		expected:  expected,
 		actual:    detectType(actual),
 	}
+}
+
+func elementTypeError(p frame, index int, expected Type, actual interface{}) *errorProxy {
+	q := &simpleFrame{
+		parent: p,
+		label:  "[" + strconv.Itoa(index) + "]",
+	}
+	return typeError(q, expected, actual)
 }
 
 func notfoundError(p frame, address string) *errorProxy {

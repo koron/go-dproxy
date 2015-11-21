@@ -12,11 +12,105 @@ type setProxy struct {
 var _ ProxySet = (*setProxy)(nil)
 
 func (p *setProxy) Empty() bool {
-	return len(p.values) == 0
+	return p.Len() == 0
 }
 
 func (p *setProxy) Len() int {
 	return len(p.values)
+}
+
+func (p *setProxy) BoolArray() ([]bool, error) {
+	r := make([]bool, len(p.values))
+	for i, v := range p.values {
+		switch v := v.(type) {
+		case bool:
+			r[i] = v
+		default:
+			return nil, elementTypeError(p, i, Tbool, v)
+		}
+	}
+	return r, nil
+}
+
+func (p *setProxy) Int64Array() ([]int64, error) {
+	r := make([]int64, len(p.values))
+	for i, v := range p.values {
+		switch v := v.(type) {
+		case int:
+			r[i] = int64(v)
+		case int32:
+			r[i] = int64(v)
+		case int64:
+			r[i] = v
+		case float32:
+			r[i] = int64(v)
+		case float64:
+			r[i] = int64(v)
+		default:
+			return nil, elementTypeError(p, i, Tint64, v)
+		}
+	}
+	return r, nil
+}
+
+func (p *setProxy) Float64Array() ([]float64, error) {
+	r := make([]float64, len(p.values))
+	for i, v := range p.values {
+		switch v := v.(type) {
+		case int:
+			r[i] = float64(v)
+		case int32:
+			r[i] = float64(v)
+		case int64:
+			r[i] = float64(v)
+		case float32:
+			r[i] = float64(v)
+		case float64:
+			r[i] = v
+		default:
+			return nil, elementTypeError(p, i, Tfloat64, v)
+		}
+	}
+	return r, nil
+}
+
+func (p *setProxy) String64Array() ([]string, error) {
+	r := make([]string, len(p.values))
+	for i, v := range p.values {
+		switch v := v.(type) {
+		case string:
+			return nil, elementTypeError(p, i, Tfloat64, v)
+		default:
+			return nil, elementTypeError(p, i, Tstring, v)
+		}
+	}
+	return r, nil
+}
+
+func (p *setProxy) ArrayArray() ([][]interface{}, error) {
+	r := make([][]interface{}, len(p.values))
+	for i, v := range p.values {
+		switch v := v.(type) {
+		case []interface{}:
+			r[i] = v
+		default:
+			return nil, elementTypeError(p, i, Tarray, v)
+		}
+	}
+	return r, nil
+}
+
+func (p *setProxy) MapArray() ([]map[string]interface{}, error) {
+	r := make([]map[string]interface{}, len(p.values))
+	for i, v := range p.values {
+		switch v := v.(type) {
+		case map[string]interface{}:
+			r[i] = v
+		default:
+			return nil, elementTypeError(p, i, Tmap, v)
+		}
+	}
+	return r, nil
 }
 
 func (p *setProxy) A(n int) Proxy {
