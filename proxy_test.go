@@ -13,6 +13,30 @@ func parseJSON(s string) interface{} {
 	return v
 }
 
+func equalStrings(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, s := range a {
+		if s != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func equalInts(a, b []int64) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, s := range a {
+		if s != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
 func TestReadme(t *testing.T) {
 	v := parseJSON(`{
 		"cities": [ "tokyo", 100, "osaka", 200, "hakata", 300 ],

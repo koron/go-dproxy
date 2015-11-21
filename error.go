@@ -96,7 +96,7 @@ func (p *errorProxy) Float64Array() ([]float64, error) {
 	return nil, p
 }
 
-func (p *errorProxy) String64Array() ([]string, error) {
+func (p *errorProxy) StringArray() ([]string, error) {
 	return nil, p
 }
 

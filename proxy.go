@@ -53,8 +53,8 @@ type ProxySet interface {
 	// Float64Array returns []float64 which converterd from the set.
 	Float64Array() ([]float64, error)
 
-	// String64Array returns []string which converterd from the set.
-	String64Array() ([]string, error)
+	// StringArray returns []string which converterd from the set.
+	StringArray() ([]string, error)
 
 	// ArrayArray returns [][]interface{} which converterd from the set.
 	ArrayArray() ([][]interface{}, error)

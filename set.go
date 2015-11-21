@@ -74,12 +74,12 @@ func (p *setProxy) Float64Array() ([]float64, error) {
 	return r, nil
 }
 
-func (p *setProxy) String64Array() ([]string, error) {
+func (p *setProxy) StringArray() ([]string, error) {
 	r := make([]string, len(p.values))
 	for i, v := range p.values {
 		switch v := v.(type) {
 		case string:
-			return nil, elementTypeError(p, i, Tfloat64, v)
+			r[i] = v
 		default:
 			return nil, elementTypeError(p, i, Tstring, v)
 		}
