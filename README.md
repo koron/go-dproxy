@@ -1,7 +1,7 @@
 # dProxy - document proxy
 
 dProxy is a proxy to access `interface{}` (document) by simple query.
-It is intetedd to be used with `json.Unmarshal()` or `json.NewDecorder()`.
+It is intented to be used with `json.Unmarshal()` or `json.NewDecorder()`.
 
 See codes for overview.
 
