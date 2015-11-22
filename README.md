@@ -79,7 +79,17 @@ _, err = dproxy.New(v).M("data").M("kustom").String()
     fmt.Println(err)
     ```
 
-    You can verify queries easily.
+7.  If you tried to get a value as different type, get an error.
+
+    ```go
+    // OOPS! "cities[3]" (=200) should be float64 or int64.
+    _, err := p.M("cities").A(3).String()
+
+    // "not matched types: expected=string actual=float64: cities[3]"
+    fmt.Println(err)
+    ```
+
+8.  You can verify queries easily.
 
 
 ## LICENSE
