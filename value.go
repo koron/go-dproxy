@@ -120,6 +120,18 @@ func (p *valueProxy) M(k string) Proxy {
 	}
 }
 
+func (p *valueProxy) ProxySet() ProxySet {
+	switch v := p.value.(type) {
+	case []interface{}:
+		return &setProxy{
+			values: v,
+			parent: p,
+		}
+	default:
+		return typeError(p, Tarray, v)
+	}
+}
+
 func (p *valueProxy) Q(k string) ProxySet {
 	w := findAll(p.value, k)
 	return &setProxy{

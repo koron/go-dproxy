@@ -29,6 +29,9 @@ type Proxy interface {
 	// M returns an item from value treated as the map.
 	M(k string) Proxy
 
+	// ProxySet returns a set which converted from its array value.
+	ProxySet() ProxySet
+
 	// Q returns set of all items which property matchs with k.
 	Q(k string) ProxySet
 
@@ -75,11 +78,12 @@ type ProxySet interface {
 	frame
 }
 
-// New creates a new proxy object.
+// New creates a new Proxy instance for v.
 func New(v interface{}) Proxy {
 	return &valueProxy{value: v}
 }
 
+// NewSet create a new ProxySet instance for v.
 func NewSet(v []interface{}) ProxySet {
 	return &setProxy{values: v}
 }

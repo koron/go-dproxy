@@ -108,6 +108,10 @@ func (p *errorProxy) MapArray() ([]map[string]interface{}, error) {
 	return nil, p
 }
 
+func (p *errorProxy) ProxySet() ProxySet {
+	return p
+}
+
 func (p *errorProxy) Q(k string) ProxySet {
 	return p
 }
