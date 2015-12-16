@@ -3,17 +3,13 @@ package dproxy
 import "strconv"
 
 type valueProxy struct {
-	value   interface{}
-	parent  Proxy
-	address string
+	value  interface{}
+	parent frame
+	label  string
 }
 
-func newValueProxy(v interface{}, parent Proxy) *valueProxy {
-	return &valueProxy{
-		value:  v,
-		parent: parent,
-	}
-}
+// valueProxy implements Proxy.
+var _ Proxy = (*valueProxy)(nil)
 
 func (p *valueProxy) Nil() bool {
 	return p.value == nil
@@ -24,7 +20,7 @@ func (p *valueProxy) Bool() (bool, error) {
 	case bool:
 		return v, nil
 	default:
-		return false, mismatchError(p, Tbool, v)
+		return false, typeError(p, Tbool, v)
 	}
 }
 
@@ -41,7 +37,7 @@ func (p *valueProxy) Int64() (int64, error) {
 	case float64:
 		return int64(v), nil
 	default:
-		return 0, mismatchError(p, Tint64, v)
+		return 0, typeError(p, Tint64, v)
 	}
 }
 
@@ -58,7 +54,7 @@ func (p *valueProxy) Float64() (float64, error) {
 	case float64:
 		return v, nil
 	default:
-		return 0, mismatchError(p, Tfloat64, v)
+		return 0, typeError(p, Tfloat64, v)
 	}
 }
 
@@ -67,7 +63,7 @@ func (p *valueProxy) String() (string, error) {
 	case string:
 		return v, nil
 	default:
-		return "", mismatchError(p, Tstring, v)
+		return "", typeError(p, Tstring, v)
 	}
 }
 
@@ -76,7 +72,7 @@ func (p *valueProxy) Array() ([]interface{}, error) {
 	case []interface{}:
 		return v, nil
 	default:
-		return nil, mismatchError(p, Tarray, v)
+		return nil, typeError(p, Tarray, v)
 	}
 }
 
@@ -85,7 +81,7 @@ func (p *valueProxy) Map() (map[string]interface{}, error) {
 	case map[string]interface{}:
 		return v, nil
 	default:
-		return nil, mismatchError(p, Tmap, v)
+		return nil, typeError(p, Tmap, v)
 	}
 }
 
@@ -94,15 +90,15 @@ func (p *valueProxy) A(n int) Proxy {
 	case []interface{}:
 		a := "[" + strconv.Itoa(n) + "]"
 		if n < 0 || n >= len(v) {
-			return addressError(p, a)
+			return notfoundError(p, a)
 		}
 		return &valueProxy{
-			value:   v[n],
-			parent:  p,
-			address: a,
+			value:  v[n],
+			parent: p,
+			label:  a,
 		}
 	default:
-		return mismatchError(p, Tarray, v)
+		return typeError(p, Tarray, v)
 	}
 }
 
@@ -112,22 +108,43 @@ func (p *valueProxy) M(k string) Proxy {
 		a := "." + k
 		w, ok := v[k]
 		if !ok {
-			return addressError(p, a)
+			return notfoundError(p, a)
 		}
 		return &valueProxy{
-			value:   w,
-			parent:  p,
-			address: a,
+			value:  w,
+			parent: p,
+			label:  a,
 		}
 	default:
-		return mismatchError(p, Tmap, v)
+		return typeError(p, Tmap, v)
 	}
 }
 
-func (p *valueProxy) getParent() Proxy {
+func (p *valueProxy) ProxySet() ProxySet {
+	switch v := p.value.(type) {
+	case []interface{}:
+		return &setProxy{
+			values: v,
+			parent: p,
+		}
+	default:
+		return typeError(p, Tarray, v)
+	}
+}
+
+func (p *valueProxy) Q(k string) ProxySet {
+	w := findAll(p.value, k)
+	return &setProxy{
+		values: w,
+		parent: p,
+		label:  ".." + k,
+	}
+}
+
+func (p *valueProxy) parentFrame() frame {
 	return p.parent
 }
 
-func (p *valueProxy) getAddress() string {
-	return p.address
+func (p *valueProxy) frameLabel() string {
+	return p.label
 }
