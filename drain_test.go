@@ -30,7 +30,7 @@ func TestDrainBool(t *testing.T) {
 	if !d.Has() {
 		t.Error("baz must not exist")
 	} else if err := d.First(); err == nil || err.Error() != "not found: baz" {
-		t.Errorf("unexpected error: %d", err)
+		t.Errorf("unexpected error: %s", err)
 	}
 	_ = baz
 }
