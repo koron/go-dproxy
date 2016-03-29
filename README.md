@@ -1,5 +1,7 @@
 # dProxy - document proxy
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/koron/go-dproxy)](https://goreportcard.com/report/github.com/koron/go-dproxy)
+
 dProxy is a proxy to access `interface{}` (document) by simple query.
 It is intented to be used with `json.Unmarshal()` or `json.NewDecorder()`.
 
