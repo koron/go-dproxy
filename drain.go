@@ -9,12 +9,12 @@ type Drain struct {
 
 // Has returns true if the drain stored some of errors.
 func (d *Drain) Has() bool {
-	return d != nil && d.errors != nil
+	return d != nil && len(d.errors) > 0
 }
 
 // First returns a stored error.  Returns nil if there are no errors.
 func (d *Drain) First() error {
-	if d == nil || d.errors == nil {
+	if d == nil || len(d.errors) == 0 {
 		return nil
 	}
 	return d.errors[0]
@@ -22,7 +22,7 @@ func (d *Drain) First() error {
 
 // All returns all errors which stored.  Return nil if no errors stored.
 func (d *Drain) All() []error {
-	if d == nil || d.errors == nil {
+	if d == nil || len(d.errors) == 0 {
 		return nil
 	}
 	a := make([]error, 0, len(d.errors))
@@ -32,7 +32,7 @@ func (d *Drain) All() []error {
 // CombineErrors returns an error which combined all stored errors.  Return nil
 // if not erros stored.
 func (d *Drain) CombineErrors() error {
-	if d == nil || d.errors == nil {
+	if d == nil || len(d.errors) == 0 {
 		return nil
 	}
 	return drainError(d.errors)
