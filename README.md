@@ -1,5 +1,7 @@
 # dProxy - document proxy
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/koron/go-dproxy)](https://goreportcard.com/report/github.com/koron/go-dproxy)
+
 dProxy is a proxy to access `interface{}` (document) by simple query.
 It is intented to be used with `json.Unmarshal()` or `json.NewDecorder()`.
 
@@ -38,6 +40,8 @@ _, err = dproxy.New(v).M("data").M("kustom").String()
 
 
 ## Getting started
+
+### Proxy
 
 1.  Wrap a value (`interface{}`) with `dproxy.New()` get `dproxy.Proxy`.
 
@@ -91,6 +95,39 @@ _, err = dproxy.New(v).M("data").M("kustom").String()
 
 8.  You can verify queries easily.
 
+### Drain
+
+Getting value and error from Proxy/ProxySet multiple times, is very awful.
+It must check error when every getting values.
+
+```go
+p := dproxy.New(v)
+v1, err := p.M("cities").A(3).Int64()
+if err != nil {
+    return err
+}
+v2, err := p.M("data").M("kustom").A(3).Int64()
+if err != nil {
+    return err
+}
+v3, err := p.M("cities").A(3).String()
+if err != nil {
+    return err
+}
+```
+
+It can be rewrite as simple like below with `dproxy.Drain`
+
+```go
+var d Drain
+p := dproxy.New(v)
+v1 := d.Int64(p.M("cities").A(3))
+v2 := d.Int64(p.M("data").M("kustom").A(3))
+v3 := d.String(p.M("cities").A(3))
+if err := d.CombineErrors(); err != nil {
+    return err
+}
+```
 
 ## LICENSE
 
