@@ -35,6 +35,9 @@ type Proxy interface {
 	// Q returns set of all items which property matchs with k.
 	Q(k string) ProxySet
 
+	// findJPT returns a match of JSON Pointer's Token t.
+	findJPT(t string) Proxy
+
 	// Proxy implements frame.
 	frame
 }
