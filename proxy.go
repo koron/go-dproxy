@@ -29,6 +29,9 @@ type Proxy interface {
 	// M returns an item from value treated as the map.
 	M(k string) Proxy
 
+	// P returns which pointed by JSON Pointer's query q.
+	P(q string) Proxy
+
 	// ProxySet returns a set which converted from its array value.
 	ProxySet() ProxySet
 
