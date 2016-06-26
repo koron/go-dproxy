@@ -120,6 +120,10 @@ func (p *valueProxy) M(k string) Proxy {
 	}
 }
 
+func (p *valueProxy) P(q string) Proxy {
+	return pointer(p, q)
+}
+
 func (p *valueProxy) ProxySet() ProxySet {
 	switch v := p.value.(type) {
 	case []interface{}:

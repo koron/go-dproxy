@@ -20,6 +20,9 @@ const (
 
 	// EinvalidIndex means token is invalid as index (for JSON Pointer)
 	EinvalidIndex
+
+	// EinvalidQuery means query is invalid as JSON Pointer.
+	EinvalidQuery
 )
 
 // Error get detail information of the errror.
@@ -81,6 +84,10 @@ func (p *errorProxy) A(n int) Proxy {
 }
 
 func (p *errorProxy) M(k string) Proxy {
+	return p
+}
+
+func (p *errorProxy) P(q string) Proxy {
 	return p
 }
 
@@ -148,10 +155,15 @@ func (p *errorProxy) Error() string {
 	case Enotfound:
 		return fmt.Sprintf("not found: %s", p.FullAddress())
 	case EmapNorArray:
+		// FIXME: better error message.
 		return fmt.Sprintf("not map nor array: actual=%s: %s",
 			p.actual.String(), p.FullAddress())
 	case EinvalidIndex:
+		// FIXME: better error message.
 		return fmt.Sprintf("invalid index: %s: %s", p.infoStr, p.FullAddress())
+	case EinvalidQuery:
+		// FIXME: better error message.
+		return fmt.Sprintf("invalid query: %s: %s", p.infoStr, p.FullAddress())
 	default:
 		return fmt.Sprintf("unexpected: %s", p.FullAddress())
 	}
