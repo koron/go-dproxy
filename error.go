@@ -14,7 +14,33 @@ const (
 
 	// Enotfound means key or index doesn't exist.
 	Enotfound
+
+	// EmapNorArray means target is not a map nor an array (for JSON Pointer)
+	EmapNorArray
+
+	// EinvalidIndex means token is invalid as index (for JSON Pointer)
+	EinvalidIndex
+
+	// EinvalidQuery means query is invalid as JSON Pointer.
+	EinvalidQuery
 )
+
+func (et ErrorType) String() string {
+	switch et {
+	case Etype:
+		return "Etype"
+	case Enotfound:
+		return "Enotfound"
+	case EmapNorArray:
+		return "EmapNorArray"
+	case EinvalidIndex:
+		return "EinvalidIndex"
+	case EinvalidQuery:
+		return "EinvalidQuery"
+	default:
+		return "Eunknown"
+	}
+}
 
 // Error get detail information of the errror.
 type Error interface {
@@ -29,8 +55,10 @@ type errorProxy struct {
 	errorType ErrorType
 	parent    frame
 	label     string
-	expected  Type
-	actual    Type
+
+	expected Type
+	actual   Type
+	infoStr  string
 }
 
 // errorProxy implements error, Proxy and ProxySet.
@@ -42,6 +70,10 @@ var (
 
 func (p *errorProxy) Nil() bool {
 	return false
+}
+
+func (p *errorProxy) Value() (interface{}, error) {
+	return nil, p
 }
 
 func (p *errorProxy) Bool() (bool, error) {
@@ -73,6 +105,10 @@ func (p *errorProxy) A(n int) Proxy {
 }
 
 func (p *errorProxy) M(k string) Proxy {
+	return p
+}
+
+func (p *errorProxy) P(q string) Proxy {
 	return p
 }
 
@@ -120,6 +156,10 @@ func (p *errorProxy) Qc(k string) ProxySet {
 	return p
 }
 
+func (p *errorProxy) findJPT(t string) Proxy {
+	return p
+}
+
 func (p *errorProxy) parentFrame() frame {
 	return p.parent
 }
@@ -135,6 +175,16 @@ func (p *errorProxy) Error() string {
 			p.expected.String(), p.actual.String(), p.FullAddress())
 	case Enotfound:
 		return fmt.Sprintf("not found: %s", p.FullAddress())
+	case EmapNorArray:
+		// FIXME: better error message.
+		return fmt.Sprintf("not map nor array: actual=%s: %s",
+			p.actual.String(), p.FullAddress())
+	case EinvalidIndex:
+		// FIXME: better error message.
+		return fmt.Sprintf("invalid index: %s: %s", p.infoStr, p.FullAddress())
+	case EinvalidQuery:
+		// FIXME: better error message.
+		return fmt.Sprintf("invalid query: %s: %s", p.infoStr, p.FullAddress())
 	default:
 		return fmt.Sprintf("unexpected: %s", p.FullAddress())
 	}

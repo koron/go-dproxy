@@ -15,6 +15,10 @@ func (p *valueProxy) Nil() bool {
 	return p.value == nil
 }
 
+func (p *valueProxy) Value() (interface{}, error) {
+	return p.value, nil
+}
+
 func (p *valueProxy) Bool() (bool, error) {
 	switch v := p.value.(type) {
 	case bool:
@@ -120,6 +124,10 @@ func (p *valueProxy) M(k string) Proxy {
 	}
 }
 
+func (p *valueProxy) P(q string) Proxy {
+	return pointer(p, q)
+}
+
 func (p *valueProxy) ProxySet() ProxySet {
 	switch v := p.value.(type) {
 	case []interface{}:
@@ -138,6 +146,29 @@ func (p *valueProxy) Q(k string) ProxySet {
 		values: w,
 		parent: p,
 		label:  ".." + k,
+	}
+}
+
+func (p *valueProxy) findJPT(t string) Proxy {
+	switch v := p.value.(type) {
+	case map[string]interface{}:
+		return p.M(t)
+	case []interface{}:
+		n, err := strconv.ParseUint(t, 10, 0)
+		if err != nil {
+			return &errorProxy{
+				errorType: EinvalidIndex,
+				parent:    p,
+				infoStr:   err.Error(),
+			}
+		}
+		return p.A(int(n))
+	default:
+		return &errorProxy{
+			errorType: EmapNorArray,
+			parent:    p,
+			actual:    detectType(v),
+		}
 	}
 }
 

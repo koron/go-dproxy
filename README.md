@@ -129,6 +129,25 @@ if err := d.CombineErrors(); err != nil {
 }
 ```
 
+### JSON Pointer
+
+JSON Pointer can be used to query `interface{}`
+
+```go
+v1, err := dproxy.New(v).P("/cities/0").Int64()
+```
+
+or
+
+```go
+v1, err := dproxy.Pointer(v, "/cities/0").Int64()
+```
+
+See [RFC6901][1] for details of JSON Pointer.
+
+
 ## LICENSE
 
 MIT license.  See LICENSE.
+
+[1]: https://tools.ietf.org/html/rfc6901

@@ -5,6 +5,10 @@ type Proxy interface {
 	// Nil returns true, if target value is nil.
 	Nil() bool
 
+	// Value returns a proxied value.  If there are no values, it returns
+	// error.
+	Value() (interface{}, error)
+
 	// Bool returns its value.  If value isn't the type, it returns error.
 	Bool() (bool, error)
 
@@ -29,11 +33,17 @@ type Proxy interface {
 	// M returns an item from value treated as the map.
 	M(k string) Proxy
 
+	// P returns which pointed by JSON Pointer's query q.
+	P(q string) Proxy
+
 	// ProxySet returns a set which converted from its array value.
 	ProxySet() ProxySet
 
 	// Q returns set of all items which property matchs with k.
 	Q(k string) ProxySet
+
+	// findJPT returns a match of JSON Pointer's Token t.
+	findJPT(t string) Proxy
 
 	// Proxy implements frame.
 	frame
