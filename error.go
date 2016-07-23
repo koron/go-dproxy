@@ -25,6 +25,23 @@ const (
 	EinvalidQuery
 )
 
+func (et ErrorType) String() string {
+	switch et {
+	case Etype:
+		return "Etype"
+	case Enotfound:
+		return "Enotfound"
+	case EmapNorArray:
+		return "EmapNorArray"
+	case EinvalidIndex:
+		return "EinvalidIndex"
+	case EinvalidQuery:
+		return "EinvalidQuery"
+	default:
+		return "Eunknown"
+	}
+}
+
 // Error get detail information of the errror.
 type Error interface {
 	// ErrorType returns type of error.

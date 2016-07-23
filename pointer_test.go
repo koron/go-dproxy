@@ -19,3 +19,14 @@ func TestUnescapeJPT(t *testing.T) {
 	f("foo~01bar", "foo~1bar")
 	f("~10", "/0")
 }
+
+func TestPointerInvalidQuery(t *testing.T) {
+	p := Pointer(nil, "invalid")
+	err, ok := p.(*errorProxy)
+	if !ok {
+		t.Fatalf("it should be *errorProxy but: %+v", p)
+	}
+	if err.errorType != EinvalidQuery {
+		t.Fatalf("errorType should be EinvalidQuery but: %s", err.errorType)
+	}
+}
