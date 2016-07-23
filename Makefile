@@ -18,6 +18,8 @@ report:
 	@echo "misspell"
 	@find . -name "*.go" | xargs misspell
 	@echo ""
+	-errcheck ./...
+	@echo ""
 	-gocyclo -over 14 -avg .
 	@echo ""
 	go vet ./...

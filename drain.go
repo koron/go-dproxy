@@ -135,9 +135,9 @@ func (derr drainError) Error() string {
 	b := bytes.Buffer{}
 	for i, err := range derr {
 		if i > 0 {
-			b.WriteString("; ")
+			_, _ = b.WriteString("; ")
 		}
-		b.WriteString(err.Error())
+		_, _ = b.WriteString(err.Error())
 	}
 	return b.String()
 }
