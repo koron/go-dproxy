@@ -72,6 +72,10 @@ func (p *errorProxy) Nil() bool {
 	return false
 }
 
+func (p *errorProxy) Value() (interface{}, error) {
+	return nil, p
+}
+
 func (p *errorProxy) Bool() (bool, error) {
 	return false, p
 }

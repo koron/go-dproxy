@@ -15,6 +15,10 @@ func (p *valueProxy) Nil() bool {
 	return p.value == nil
 }
 
+func (p *valueProxy) Value() (interface{}, error) {
+	return p.value, nil
+}
+
 func (p *valueProxy) Bool() (bool, error) {
 	switch v := p.value.(type) {
 	case bool:

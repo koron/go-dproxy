@@ -5,6 +5,10 @@ type Proxy interface {
 	// Nil returns true, if target value is nil.
 	Nil() bool
 
+	// Value returns a proxied value.  If there are no values, it returns
+	// error.
+	Value() (interface{}, error)
+
 	// Bool returns its value.  If value isn't the type, it returns error.
 	Bool() (bool, error)
 
