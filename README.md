@@ -1,5 +1,6 @@
 # dProxy - document proxy
 
+[![GoDoc](https://godoc.org/github.com/koron/go-dproxy?status.svg)](https://godoc.org/github.com/koron/go-dproxy)
 [![Go Report Card](https://goreportcard.com/badge/github.com/koron/go-dproxy)](https://goreportcard.com/report/github.com/koron/go-dproxy)
 
 dProxy is a proxy to access `interface{}` (document) by simple query.
