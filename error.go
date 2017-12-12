@@ -144,6 +144,10 @@ func (p *errorProxy) MapArray() ([]map[string]interface{}, error) {
 	return nil, p
 }
 
+func (p *errorProxy) ProxyArray() ([]Proxy, error) {
+	return nil, p
+}
+
 func (p *errorProxy) ProxySet() ProxySet {
 	return p
 }

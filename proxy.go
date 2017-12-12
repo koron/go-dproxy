@@ -75,6 +75,9 @@ type ProxySet interface {
 	// MapArray returns []map[string]interface{} which converterd from the set.
 	MapArray() ([]map[string]interface{}, error)
 
+	// ProxyArray returns []Proxy which wrap each items.
+	ProxyArray() ([]Proxy, error)
+
 	// A returns an proxy for index in the set.
 	A(n int) Proxy
 

@@ -129,6 +129,13 @@ func (d *Drain) MapArray(ps ProxySet) []map[string]interface{} {
 	return v
 }
 
+// ProxyArray returns []Proxy value and stores an error.
+func (d *Drain) ProxyArray(ps ProxySet) []Proxy {
+	v, err := ps.ProxyArray()
+	d.put(err)
+	return v
+}
+
 type drainError []error
 
 func (derr drainError) Error() string {

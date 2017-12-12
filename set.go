@@ -113,6 +113,18 @@ func (p *setProxy) MapArray() ([]map[string]interface{}, error) {
 	return r, nil
 }
 
+func (p *setProxy) ProxyArray() ([]Proxy, error) {
+	r := make([]Proxy, 0, len(p.values))
+	for i, v := range p.values {
+		r = append(r, &valueProxy{
+			value:  v,
+			parent: p,
+			label:  "[" + strconv.Itoa(i) + "]",
+		})
+	}
+	return r, nil
+}
+
 func (p *setProxy) A(n int) Proxy {
 	a := "[" + strconv.Itoa(n) + "]"
 	if n < 0 || n >= len(p.values) {
