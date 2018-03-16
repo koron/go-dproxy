@@ -23,6 +23,9 @@ const (
 
 	// EinvalidQuery means query is invalid as JSON Pointer.
 	EinvalidQuery
+
+	// EinvalidValue means proxy can't treat the value.
+	EinvalidValue
 )
 
 func (et ErrorType) String() string {
@@ -37,6 +40,8 @@ func (et ErrorType) String() string {
 		return "EinvalidIndex"
 	case EinvalidQuery:
 		return "EinvalidQuery"
+	case EinvalidValue:
+		return "EinvalidValue"
 	default:
 		return "Eunknown"
 	}
@@ -189,6 +194,9 @@ func (p *errorProxy) Error() string {
 	case EinvalidQuery:
 		// FIXME: better error message.
 		return fmt.Sprintf("invalid query: %s: %s", p.infoStr, p.FullAddress())
+	case EinvalidValue:
+		// FIXME: better error message.
+		return fmt.Sprintf("invalid value: %s: %$s", p.infoStr, p.FullAddress())
 	default:
 		return fmt.Sprintf("unexpected: %s", p.FullAddress())
 	}

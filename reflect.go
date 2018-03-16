@@ -1,6 +1,7 @@
 package dproxy
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 )
@@ -14,8 +15,19 @@ type reflectProxy struct {
 
 var _ Proxy = (*reflectProxy)(nil)
 
-func newReflectProxy(v interface{}, parent frame, label string) *reflectProxy {
+func newReflectProxy(v interface{}, parent frame, label string) Proxy {
 	rv := reflect.ValueOf(v)
+	for rv.Kind() == reflect.Ptr {
+		rv = rv.Elem()
+		if !rv.IsValid() {
+			return &errorProxy{
+				errorType: EinvalidValue,
+				parent:    parent,
+				label:     label,
+				infoStr:   fmt.Sprintf("%T", v),
+			}
+		}
+	}
 	return &reflectProxy{rv: rv, p: parent, l: label}
 }
 
@@ -111,11 +123,8 @@ func (rp *reflectProxy) A(n int) Proxy {
 	if n < 0 || n >= rp.rv.Len() {
 		return notfoundError(rp, adrs)
 	}
-	return &reflectProxy{
-		rv: rp.rv.Index(n),
-		p:  rp,
-		l:  adrs,
-	}
+	v := rp.rv.Index(n)
+	return newReflectProxy(v.Interface(), rp, adrs)
 }
 
 func (rp *reflectProxy) M(k string) Proxy {
@@ -126,13 +135,13 @@ func (rp *reflectProxy) M(k string) Proxy {
 		if !v.IsValid() {
 			return notfoundError(rp, adrs)
 		}
-		return &reflectProxy{rv: v, p: rp, l: adrs}
+		return newReflectProxy(v.Interface(), rp, adrs)
 	case reflect.Struct:
 		v := rp.rv.FieldByName(k)
 		if !v.IsValid() {
 			return notfoundError(rp, adrs)
 		}
-		return &reflectProxy{rv: v, p: rp, l: adrs}
+		return newReflectProxy(v.Interface(), rp, adrs)
 	default:
 		return rp.typeError(Tmap)
 	}
