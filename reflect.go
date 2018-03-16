@@ -15,6 +15,11 @@ type reflectProxy struct {
 
 var _ Proxy = (*reflectProxy)(nil)
 
+// NewReflect creates a new proxy with reflect.
+func NewReflect(v interface{}) Proxy {
+	return newReflectProxy(v, nil, "")
+}
+
 func newReflectProxy(v interface{}, parent frame, label string) Proxy {
 	rv := reflect.ValueOf(v)
 	for rv.Kind() == reflect.Ptr {
@@ -100,23 +105,44 @@ func (rp *reflectProxy) String() (string, error) {
 }
 
 func (rp *reflectProxy) Array() ([]interface{}, error) {
-	if rp.rv.Kind() != reflect.Array {
+	if !rp.isArray() {
 		return nil, rp.typeError(Tarray)
 	}
-	// TODO: return value as []interface{}
-	return nil, nil
+	if v, ok := rp.rv.Interface().([]interface{}); ok {
+		return v, nil
+	}
+	v := make([]interface{}, rp.rv.Len())
+	for i := range v {
+		v[i] = rp.rv.Index(i)
+	}
+	return v, nil
 }
 
 func (rp *reflectProxy) Map() (map[string]interface{}, error) {
 	if rp.rv.Kind() != reflect.Map {
 		return nil, rp.typeError(Tmap)
 	}
-	// TODO: return value as map[string]interface{}
-	return nil, nil
+	if v, ok := rp.rv.Interface().(map[string]interface{}); ok {
+		return v, nil
+	}
+	v := map[string]interface{}{}
+	for _, k := range rp.rv.MapKeys() {
+		v[k.String()] = rp.rv.MapIndex(k)
+	}
+	return v, nil
+}
+
+func (rp *reflectProxy) isArray() bool {
+	switch rp.rv.Kind() {
+	case reflect.Array, reflect.Slice:
+		return true
+	default:
+		return false
+	}
 }
 
 func (rp *reflectProxy) A(n int) Proxy {
-	if rp.rv.Kind() != reflect.Array {
+	if !rp.isArray() {
 		return rp.typeError(Tarray)
 	}
 	adrs := "[" + strconv.Itoa(n) + "]"
@@ -165,7 +191,7 @@ func (rp *reflectProxy) findJPT(t string) Proxy {
 	switch rp.rv.Kind() {
 	case reflect.Map, reflect.Struct:
 		return rp.M(t)
-	case reflect.Array:
+	case reflect.Array, reflect.Slice:
 		n, err := strconv.ParseUint(t, 10, 0)
 		if err != nil {
 			return &errorProxy{
