@@ -196,7 +196,7 @@ func (p *errorProxy) Error() string {
 		return fmt.Sprintf("invalid query: %s: %s", p.infoStr, p.FullAddress())
 	case EinvalidValue:
 		// FIXME: better error message.
-		return fmt.Sprintf("invalid value: %s: %$s", p.infoStr, p.FullAddress())
+		return fmt.Sprintf("invalid value: %s: %s", p.infoStr, p.FullAddress())
 	default:
 		return fmt.Sprintf("unexpected: %s", p.FullAddress())
 	}
