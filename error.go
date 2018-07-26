@@ -18,6 +18,9 @@ const (
 	// EmapNorArray means target is not a map nor an array (for JSON Pointer)
 	EmapNorArray
 
+	// EconvertFailure means value conversion is failed.
+	EconvertFailure
+
 	// EinvalidIndex means token is invalid as index (for JSON Pointer)
 	EinvalidIndex
 
@@ -33,6 +36,8 @@ func (et ErrorType) String() string {
 		return "Enotfound"
 	case EmapNorArray:
 		return "EmapNorArray"
+	case EconvertFailure:
+		return "EconvertFailure"
 	case EinvalidIndex:
 		return "EinvalidIndex"
 	case EinvalidQuery:
@@ -183,6 +188,8 @@ func (p *errorProxy) Error() string {
 		// FIXME: better error message.
 		return fmt.Sprintf("not map nor array: actual=%s: %s",
 			p.actual.String(), p.FullAddress())
+	case EconvertFailure:
+		return fmt.Sprintf("convert error: %s: %s", p.infoStr, p.FullAddress())
 	case EinvalidIndex:
 		// FIXME: better error message.
 		return fmt.Sprintf("invalid index: %s: %s", p.infoStr, p.FullAddress())

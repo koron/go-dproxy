@@ -1,6 +1,8 @@
 package dproxy
 
-import "strconv"
+import (
+	"strconv"
+)
 
 type valueProxy struct {
 	value  interface{}
@@ -28,6 +30,10 @@ func (p *valueProxy) Bool() (bool, error) {
 	}
 }
 
+type int64er interface {
+	Int64() (int64, error)
+}
+
 func (p *valueProxy) Int64() (int64, error) {
 	switch v := p.value.(type) {
 	case int:
@@ -40,9 +46,23 @@ func (p *valueProxy) Int64() (int64, error) {
 		return int64(v), nil
 	case float64:
 		return int64(v), nil
+	case int64er:
+		w, err := v.Int64()
+		if err != nil {
+			return 0, &errorProxy{
+				errorType: EconvertFailure,
+				parent:    p,
+				infoStr:   err.Error(),
+			}
+		}
+		return w, nil
 	default:
 		return 0, typeError(p, Tint64, v)
 	}
+}
+
+type float64er interface {
+	Float64() (float64, error)
 }
 
 func (p *valueProxy) Float64() (float64, error) {
@@ -57,6 +77,16 @@ func (p *valueProxy) Float64() (float64, error) {
 		return float64(v), nil
 	case float64:
 		return v, nil
+	case float64er:
+		w, err := v.Float64()
+		if err != nil {
+			return 0, &errorProxy{
+				errorType: EconvertFailure,
+				parent:    p,
+				infoStr:   err.Error(),
+			}
+		}
+		return w, nil
 	default:
 		return 0, typeError(p, Tfloat64, v)
 	}
