@@ -1,6 +1,7 @@
 package dproxy
 
 import (
+	"reflect"
 	"strconv"
 )
 
@@ -132,26 +133,36 @@ func (p *valueProxy) A(n int) Proxy {
 			label:  a,
 		}
 	default:
-		return typeError(p, Tarray, v)
+		return requiredTypeError(p, Tarray, v)
+	}
+}
+
+var mapType = reflect.TypeOf(map[string]interface{}(nil))
+
+func (p *valueProxy) m(v map[string]interface{}, k string) Proxy {
+	a := "." + k
+	w, ok := v[k]
+	if !ok {
+		return notfoundError(p, a)
+	}
+	return &valueProxy{
+		value:  w,
+		parent: p,
+		label:  a,
 	}
 }
 
 func (p *valueProxy) M(k string) Proxy {
-	switch v := p.value.(type) {
-	case map[string]interface{}:
-		a := "." + k
-		w, ok := v[k]
-		if !ok {
-			return notfoundError(p, a)
-		}
-		return &valueProxy{
-			value:  w,
-			parent: p,
-			label:  a,
-		}
-	default:
-		return typeError(p, Tmap, v)
+	if v, ok := p.value.(map[string]interface{}); ok {
+		return p.m(v, k)
 	}
+
+	if rv := reflect.ValueOf(p.value); rv.IsValid() && rv.Type().ConvertibleTo(mapType) {
+		v, _ := rv.Convert(mapType).Interface().(map[string]interface{})
+		return p.m(v, k)
+	}
+
+	return requiredTypeError(p, Tmap, p.value)
 }
 
 func (p *valueProxy) P(q string) Proxy {

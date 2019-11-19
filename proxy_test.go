@@ -93,3 +93,18 @@ func TestMapBool(t *testing.T) {
 		t.Errorf("bar must be false")
 	}
 }
+
+type wrappedMap map[string]interface{}
+
+func TestWrappedMap(t *testing.T) {
+	v := wrappedMap{
+		"foo": 123,
+	}
+	n, err := New(v).M("foo").Int64()
+	if err != nil {
+		t.Fatalf("failed: %s", err)
+	}
+	if n != 123 {
+		t.Fatalf("unexpected value: %d", n)
+	}
+}

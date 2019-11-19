@@ -1,0 +1,47 @@
+version: 2
+jobs:
+
+  build:
+    docker:
+    - image: circleci/golang:latest
+      environment:
+        GO111MODULE: 'on'
+    working_directory: /go/src/github.com/koron/go-dproxy
+    steps:
+    - run: go version && go env
+    - checkout
+    - run: go get -v -t -d ./...
+    - run: go test -v ./...
+
+  build+module:
+    docker:
+    - image: circleci/golang:latest
+      environment:
+        GO111MODULE: 'on'
+    working_directory: /go/src/github.com/koron/go-dproxy
+    steps:
+    - run: go version && go env
+    - checkout
+    - run:
+        name: install latest git
+        command: |
+          echo "deb http://ftp.debian.org/debian stretch-backports main" | sudo tee -a /etc/apt/sources.list
+          sudo apt-get update
+          sudo apt-get -t stretch-backports install -y git
+    - restore_cache:
+        keys:
+        - module-v1-{{ .Branch }}-{{ checksum "go.sum" }}
+        - module-v1-{{ .Branch }}-
+        - module-v1-
+    - run: go test -v ./...
+    - save_cache:
+        key: module-v1-{{ .Branch }}-{{ checksum "go.sum" }}
+        paths:
+        - /go/pkg/mod/cache
+
+workflows:
+  version: 2
+  build-all:
+    jobs:
+    - build
+    - build+module
