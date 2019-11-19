@@ -132,7 +132,7 @@ func (p *valueProxy) A(n int) Proxy {
 			label:  a,
 		}
 	default:
-		return typeError(p, Tarray, v)
+		return requiredTypeError(p, Tarray, v)
 	}
 }
 
@@ -150,7 +150,7 @@ func (p *valueProxy) M(k string) Proxy {
 			label:  a,
 		}
 	default:
-		return typeError(p, Tmap, v)
+		return requiredTypeError(p, Tmap, v)
 	}
 }
 

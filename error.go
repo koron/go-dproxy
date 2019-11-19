@@ -26,6 +26,10 @@ const (
 
 	// EinvalidQuery means query is invalid as JSON Pointer.
 	EinvalidQuery
+
+	// ErequiredType means the type mismatch against user required one.
+	// For example M() requires map, A() requires array.
+	ErequiredType
 )
 
 func (et ErrorType) String() string {
@@ -42,6 +46,8 @@ func (et ErrorType) String() string {
 		return "EinvalidIndex"
 	case EinvalidQuery:
 		return "EinvalidQuery"
+	case ErequiredType:
+		return "ErequiredType"
 	default:
 		return "Eunknown"
 	}
@@ -196,6 +202,9 @@ func (p *errorProxy) Error() string {
 	case EinvalidQuery:
 		// FIXME: better error message.
 		return fmt.Sprintf("invalid query: %s: %s", p.infoStr, p.FullAddress())
+	case ErequiredType:
+		return fmt.Sprintf("not required types: required=%s actual=%s: %s",
+			p.expected.String(), p.actual.String(), p.FullAddress())
 	default:
 		return fmt.Sprintf("unexpected: %s", p.FullAddress())
 	}
@@ -212,6 +221,15 @@ func (p *errorProxy) FullAddress() string {
 func typeError(p frame, expected Type, actual interface{}) *errorProxy {
 	return &errorProxy{
 		errorType: Etype,
+		parent:    p,
+		expected:  expected,
+		actual:    detectType(actual),
+	}
+}
+
+func requiredTypeError(p frame, expected Type, actual interface{}) *errorProxy {
+	return &errorProxy{
+		errorType: ErequiredType,
 		parent:    p,
 		expected:  expected,
 		actual:    detectType(actual),

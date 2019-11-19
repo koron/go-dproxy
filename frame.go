@@ -12,6 +12,9 @@ func fullAddress(f frame) string {
 	for g := f; g != nil; g = g.parentFrame() {
 		x += len(g.frameLabel())
 	}
+	if x == 0 {
+		return "(root)"
+	}
 	b := make([]byte, x)
 	for g := f; g != nil; g = g.parentFrame() {
 		x -= len(g.frameLabel())
