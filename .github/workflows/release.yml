@@ -1,0 +1,187 @@
+name: Release
+
+on: [push]
+
+permissions:
+  contents: write
+
+env:
+  GO_VERSION: '>=1.24.0'
+
+jobs:
+
+  check:
+    name: Check if the main package exists
+    outputs:
+      targets: ${{ steps.list.outputs.targets }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v5
+    - uses: actions/setup-go@v6
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: List "main" packages to be released
+      id: list
+      run: |
+        found=0
+        echo "targets<<__END__" >> $GITHUB_OUTPUT
+        root=$(go list -f '{{.ImportPath}}' .)
+        for path in $(go list -f '{{if (eq .Name "main")}}{{.ImportPath}}{{end}}' ./... ) ; do
+          found=1
+          dir=".${path#${root}}"
+          name=$(basename "$path")
+          if [ -f "$dir/.norelease" ] ; then
+            echo -e "Skipped $name\t($dir), due to $dir/.norelease found"
+          else
+            echo "$name $dir $path" >> $GITHUB_OUTPUT
+            echo -e "Added   $name\t($dir) to the release"
+          fi
+        done
+        echo "__END__" >> $GITHUB_OUTPUT
+        if [[ $found == 0 ]] ; then
+          echo "⛔ No packages found to release"
+        fi
+
+  build:
+    name: Build releases
+
+    needs: check
+    if: needs.check.outputs.targets != ''
+
+    env:
+      RELEASE_TARGETS: ${{needs.check.outputs.targets}}
+
+    strategy:
+      matrix:
+        os:
+        - ubuntu-latest
+        - ubuntu-24.04-arm
+        - macos-latest
+        - windows-latest
+        arch:
+        - amd64
+        - arm64
+        exclude:
+        - os: windows-latest
+          arch: arm64
+        - os: ubuntu-latest
+          arch: arm64
+        - os: ubuntu-24.04-arm
+          arch: amd64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+
+    - uses: actions/checkout@v5
+    - uses: actions/setup-go@v6
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Setup env
+      id: setup
+      shell: bash
+      run: |
+        export NAME="${GITHUB_REPOSITORY#${GITHUB_REPOSITORY_OWNER}/}"
+        if [[ ${GITHUB_REF} =~ ^refs/tags/v[0-9]+\.[0-9]+ ]] ; then
+          export VERSION=${GITHUB_REF_NAME}
+        else
+          export VERSION=SNAPSHOT
+        fi
+        echo "VERSION=${VERSION}" >> $GITHUB_ENV
+        case ${{ matrix.os }} in
+          ubuntu-*)
+            export GOOS=linux
+            export PKGEXT=.tar.gz
+            ;;
+          macos-*)
+            export GOOS=darwin
+            export PKGEXT=.zip
+            ;;
+          windows-*)
+            choco install zip
+            export GOOS=windows
+            export PKGEXT=.zip
+            ;;
+        esac
+        export GOARCH=${{ matrix.arch }}
+        echo "GOOS=${GOOS}" >> $GITHUB_ENV
+        echo "GOARCH=${GOARCH}" >> $GITHUB_ENV
+        echo "CGO_ENABLED=1" >> $GITHUB_ENV
+        echo "PKGNAME=${NAME}_${VERSION}_${GOOS}_${GOARCH}" >> $GITHUB_ENV
+        echo "PKGEXT=${PKGEXT}" >> $GITHUB_ENV
+
+    - name: Build all "main" packages
+      shell: bash
+      run: |
+        echo "$RELEASE_TARGETS" | while IFS= read -r line ; do
+          read -a entry <<< "$line"
+          printf "building %s\t(%s)\n" "${entry[0]}" "${entry[1]}"
+          ( cd "${entry[1]}" && go build )
+        done
+
+    - name: Archive
+      shell: bash
+      run: |
+        mkdir -p _build/${PKGNAME}
+
+        echo "$RELEASE_TARGETS" | while IFS= read -r line ; do
+          read -a entry <<< "$line"
+          cp "${entry[1]}/${entry[0]}" _build/${PKGNAME}
+        done
+
+        cp -p LICENSE _build/${PKGNAME}
+        cp -p README.md _build/${PKGNAME}
+
+        case "${PKGEXT}" in
+          ".tar.gz")
+            tar caf _build/${PKGNAME}${PKGEXT} -C _build ${PKGNAME}
+            ;;
+          ".zip")
+            (cd _build && zip -r9q ${PKGNAME}${PKGEXT} ${PKGNAME})
+            ;;
+        esac
+        ls -laFR _build
+
+    - name: Artifact upload
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.GOOS }}_${{ env.GOARCH }}
+        path: _build/${{ env.PKGNAME }}${{ env.PKGEXT }}
+
+  create-release:
+    name: Create release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    needs:
+    - build
+    steps:
+    - uses: actions/download-artifact@v5
+      with: { name: darwin_amd64 }
+    - uses: actions/download-artifact@v5
+      with: { name: darwin_arm64 }
+    - uses: actions/download-artifact@v5
+      with: { name: linux_amd64 }
+    - uses: actions/download-artifact@v5
+      with: { name: linux_arm64 }
+    - uses: actions/download-artifact@v5
+      with: { name: windows_amd64 }
+    - run: ls -lafR
+    - name: Release
+      uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
+      with:
+        draft: true
+        prerelease: ${{ contains(github.ref_name, '-alpha.') || contains(github.ref_name, '-beta.') }}
+        files: |
+          *.tar.gz
+          *.zip
+        fail_on_unmatched_files: true
+        generate_release_notes: true
+        append_body: true
+
+# based on: github.com/koron-go/_skeleton/.github/workflows/release.yml
+# $Hash:d99d1b5435452a2fc3ff949711abe87b69e047855802ec59910d7132$

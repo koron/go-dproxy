@@ -1,6 +1,9 @@
 name: Go
 
-on: [push, pull_request]
+on: [push]
+
+env:
+  GO_VERSION: '>=1.24.0'
 
 jobs:
 
@@ -10,21 +13,30 @@ jobs:
 
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        os:
+        - ubuntu-latest
+        - ubuntu-24.04-arm
+        - macos-latest
+        - windows-latest
     steps:
 
-    - uses: actions/setup-go@v2
+    - uses: actions/checkout@v5
+
+    - uses: actions/setup-go@v6
       with:
-        go-version: 1.x
+        go-version: ${{ env.GO_VERSION }}
 
-    - name: Add $GOPATH/bin to $PATH
+    - run: go test ./...
+
+    - name: Build all "main" packages
+      shell: bash
       run: |
-        echo "::add-path::$(go env GOPATH)/bin"
-
-    - uses: actions/checkout@v2
-
-    - run: go test
-
-    - run: go build
+        root=$(go list -f '{{.ImportPath}}' .)
+        for path in $(go list -f '{{if (eq .Name "main")}}{{.ImportPath}}{{end}}' ./... ) ; do
+          dir=".${path#${root}}"
+          printf "building %s\t(%s)\n" $(basename "$path") $dir
+          ( cd "$dir" && go build )
+        done
 
 # based on: github.com/koron-go/_skeleton/.github/workflows/go.yml
+# $Hash:681012ee2e20780fbb40f995e914299c5f0f438364f8c274f66ee7c8$
