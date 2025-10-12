@@ -29,14 +29,15 @@ jobs:
       run: |
         found=0
         echo "targets<<__END__" >> $GITHUB_OUTPUT
-        root=$(go list -f '{{.ImportPath}}' .)
-        for path in $(go list -f '{{if (eq .Name "main")}}{{.ImportPath}}{{end}}' ./... ) ; do
-          found=1
-          dir=".${path#${root}}"
-          name=$(basename "$path")
+        go list -f '{{if (eq .Name "main")}}{{.ImportPath}} .{{slice .ImportPath (len .Module.Path)}}{{end}}' ./... | while IFS= read -r line ; do
+          read -a e <<< "$line"
+          path="${e[0]}"
+          dir="${e[1]}"
+          name=$(basename $path)
           if [ -f "$dir/.norelease" ] ; then
             echo -e "Skipped $name\t($dir), due to $dir/.norelease found"
           else
+            found=1
             echo "$name $dir $path" >> $GITHUB_OUTPUT
             echo -e "Added   $name\t($dir) to the release"
           fi
@@ -56,6 +57,7 @@ jobs:
       RELEASE_TARGETS: ${{needs.check.outputs.targets}}
 
     strategy:
+      fail-fast: false
       matrix:
         os:
         - ubuntu-latest
@@ -172,7 +174,7 @@ jobs:
       with: { name: windows_amd64 }
     - run: ls -lafR
     - name: Release
-      uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
+      uses: softprops/action-gh-release@62c96d0c4e8a889135c1f3a25910db8dbe0e85f7 # v2.3.4
       with:
         draft: true
         prerelease: ${{ contains(github.ref_name, '-alpha.') || contains(github.ref_name, '-beta.') }}
@@ -184,4 +186,4 @@ jobs:
         append_body: true
 
 # based on: github.com/koron-go/_skeleton/.github/workflows/release.yml
-# $Hash:d99d1b5435452a2fc3ff949711abe87b69e047855802ec59910d7132$
+# $Hash:ca0f706fc727b0268fe795ffe0362da8fb375a439a60fe79e96773ab$

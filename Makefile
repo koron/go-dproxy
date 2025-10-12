@@ -46,7 +46,12 @@ clean:
 	rm -f tags
 	rm -f tmp/_cover.out tmp/cover.html
 
-list-upgradable-modules:
+.PHONY: upgradable
+upgradable:
+	@go list -m -mod=readonly -u -f='{{if and (not .Indirect) (not .Main)}}{{if .Update}}{{.Path}}@{{.Update.Version}} [{{.Version}}]{{else if .Replace}}{{if .Replace.Update}}{{.Path}}@{{.Replace.Update.Version}} [replaced:{{.Replace.Version}} {{.Version}}]{{end}}{{end}}{{end}}' all
+
+.PHONY: upgradable-all
+upgradable-all:
 	@go list -m -u -f '{{if .Update}}{{.Path}} {{.Version}} [{{.Update.Version}}]{{end}}' all
 
 # Build all "main" packages
@@ -66,4 +71,4 @@ main-clean:
 	done
 
 # based on: github.com/koron-go/_skeleton/Makefile
-# $Hash:46e18120a853c06f4546e24b5c4ba7e823abefe1f601db9b2dc289f5$
+# $Hash:93a5966a0297543bcdd82a4dd9c2d60232a1b02c49cfa0b4341fdb71$

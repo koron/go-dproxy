@@ -12,12 +12,14 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         os:
         - ubuntu-latest
         - ubuntu-24.04-arm
         - macos-latest
         - windows-latest
+
     steps:
 
     - uses: actions/checkout@v5
@@ -31,12 +33,14 @@ jobs:
     - name: Build all "main" packages
       shell: bash
       run: |
-        root=$(go list -f '{{.ImportPath}}' .)
-        for path in $(go list -f '{{if (eq .Name "main")}}{{.ImportPath}}{{end}}' ./... ) ; do
-          dir=".${path#${root}}"
-          printf "building %s\t(%s)\n" $(basename "$path") $dir
+        go list -f '{{if (eq .Name "main")}}{{.ImportPath}} .{{slice .ImportPath (len .Module.Path)}}{{end}}' ./... | while IFS= read -r line ; do
+          read -a e <<< "$line"
+          path="${e[0]}"
+          dir="${e[1]}"
+          name=$(basename $path)
+          printf "building %s\t(%s)\n" $name $dir
           ( cd "$dir" && go build )
         done
 
 # based on: github.com/koron-go/_skeleton/.github/workflows/go.yml
-# $Hash:681012ee2e20780fbb40f995e914299c5f0f438364f8c274f66ee7c8$
+# $Hash:f6e26da7ac7beb9f6537cdc2ca874387c7f0208429fa08e84c8e489c$
