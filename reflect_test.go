@@ -69,3 +69,22 @@ func TestReflectMisc(t *testing.T) {
 		}
 	})
 }
+
+func TestReflect_Array(t *testing.T) {
+	got1, err := NewReflect(parseJSON(`{
+		"cities": [ "tokyo", 100, "osaka", 200, "hakata", 300 ]
+	}`)).M("cities").Array()
+	if err != nil {
+		t.Fatalf("not array: %s", err)
+	}
+	assertEquals(t, []any{"tokyo", 100.0, "osaka", 200.0, "hakata", 300.0}, got1)
+
+	got2, err := NewReflect([]string{"foo", "bar", "baz"}).Array()
+	if err != nil {
+		t.Fatalf("not array: %s", err)
+	}
+	assertEquals(t, []any{"foo", "bar", "baz"}, got2)
+
+	_, err = NewReflect(0).Array()
+	assertError(t, err, "not matched types: expected=array actual=int64: (root)")
+}

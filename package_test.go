@@ -1,16 +1,15 @@
 package dproxy
 
 import (
-	"fmt"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
-func assertEquals(t *testing.T, actual, expected interface{}, format string, a ...interface{}) {
+func assertEquals(t *testing.T, want, got any) {
 	t.Helper()
-	if !reflect.DeepEqual(actual, expected) {
-		msg := fmt.Sprintf(format, a...)
-		t.Errorf("not equal: %s\nexpect=%+v\nactual=%+v", msg, expected, actual)
+	if d := cmp.Diff(want, got); d != "" {
+		t.Errorf("not equal -want +got\n%s", d)
 	}
 }
 

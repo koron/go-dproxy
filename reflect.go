@@ -113,7 +113,7 @@ func (rp *reflectProxy) Array() ([]interface{}, error) {
 	}
 	v := make([]interface{}, rp.rv.Len())
 	for i := range v {
-		v[i] = rp.rv.Index(i)
+		v[i] = rp.rv.Index(i).Interface()
 	}
 	return v, nil
 }
