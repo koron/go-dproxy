@@ -15,6 +15,13 @@ func parseJSON(s string) any {
 	return v
 }
 
+func assertEqual(t *testing.T, got, want any) {
+	t.Helper()
+	if d := cmp.Diff(want, got); d != "" {
+		t.Errorf("not equal: -want +got\n%s", d)
+	}
+}
+
 func assertQuery[T any](got T, err error) func(*testing.T, T) {
 	return func(t *testing.T, want T) {
 		t.Helper()
