@@ -1,12 +1,17 @@
 package dproxy
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/google/go-cmp/cmp"
+)
 
 func TestUnescapeJPT(t *testing.T) {
-	f := func(d, expect string) {
-		s := unescapeJPT(d)
-		if s != expect {
-			t.Errorf("unescapeJPT(%q) should be %q but actually %q", d, expect, s)
+	f := func(in, want string) {
+		t.Helper()
+		got := unescapeJPT(in)
+		if d := cmp.Diff(want, got); d != "" {
+			t.Errorf("unescapeJPT(%q) unmatched: -want +got\n%s", in, d)
 		}
 	}
 	f("foo", "foo")
@@ -35,12 +40,7 @@ func TestPointer(t *testing.T) {
 	f := func(q string, d, want any) {
 		t.Helper()
 		p := Pointer(d, q)
-		got, err := p.Value()
-		if err != nil {
-			t.Errorf("Pointer:%q for %+v failed: %s", q, d, err)
-			return
-		}
-		assertEqual(t, want, got)
+		assertQuery(p.Value())(t, want)
 	}
 
 	v := parseJSON(`{
@@ -50,14 +50,14 @@ func TestPointer(t *testing.T) {
 		}
 	}`)
 	f("", v, v)
-	f("/cities", v, parseJSON(`["tokyo",100,"osaka",200,"hakata",300]`))
+	f("/cities", v, []any{"tokyo", 100.0, "osaka", 200.0, "hakata", 300.0})
 	f("/cities/0", v, "tokyo")
 	f("/cities/1", v, float64(100))
 	f("/cities/2", v, "osaka")
 	f("/cities/3", v, float64(200))
 	f("/cities/4", v, "hakata")
 	f("/cities/5", v, float64(300))
-	f("/data/custom", v, parseJSON(`["male",21,"female",22]`))
+	f("/data/custom", v, []any{"male", 21.0, "female", 22.0})
 
 	// Example from RFC6901 https://tools.ietf.org/html/rfc6901
 	w := parseJSON(`{
@@ -73,7 +73,7 @@ func TestPointer(t *testing.T) {
 		"m~n": 8
 	}`)
 	f("", w, w)
-	f("/foo", w, parseJSON(`["bar","baz"]`))
+	f("/foo", w, []any{"bar", "baz"})
 	f("/foo/0", w, "bar")
 	f("/", w, float64(0))
 	f("/a~1b", w, float64(1))
