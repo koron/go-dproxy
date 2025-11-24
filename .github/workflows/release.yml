@@ -19,7 +19,7 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - uses: actions/setup-go@v6
       with:
         go-version: ${{ env.GO_VERSION }}
@@ -79,7 +79,7 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - uses: actions/setup-go@v6
       with:
         go-version: ${{ env.GO_VERSION }}
@@ -150,7 +150,7 @@ jobs:
         ls -laFR _build
 
     - name: Artifact upload
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: ${{ env.GOOS }}_${{ env.GOARCH }}
         path: _build/${{ env.PKGNAME }}${{ env.PKGEXT }}
@@ -162,19 +162,19 @@ jobs:
     needs:
     - build
     steps:
-    - uses: actions/download-artifact@v5
+    - uses: actions/download-artifact@v6
       with: { name: darwin_amd64 }
-    - uses: actions/download-artifact@v5
+    - uses: actions/download-artifact@v6
       with: { name: darwin_arm64 }
-    - uses: actions/download-artifact@v5
+    - uses: actions/download-artifact@v6
       with: { name: linux_amd64 }
-    - uses: actions/download-artifact@v5
+    - uses: actions/download-artifact@v6
       with: { name: linux_arm64 }
-    - uses: actions/download-artifact@v5
+    - uses: actions/download-artifact@v6
       with: { name: windows_amd64 }
     - run: ls -lafR
     - name: Release
-      uses: softprops/action-gh-release@62c96d0c4e8a889135c1f3a25910db8dbe0e85f7 # v2.3.4
+      uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe # v2.4.2
       with:
         draft: true
         prerelease: ${{ contains(github.ref_name, '-alpha.') || contains(github.ref_name, '-beta.') }}
@@ -186,4 +186,4 @@ jobs:
         append_body: true
 
 # based on: github.com/koron-go/_skeleton/.github/workflows/release.yml
-# $Hash:ca0f706fc727b0268fe795ffe0362da8fb375a439a60fe79e96773ab$
+# $Hash:a9354833cf3f815f347887d0b11c95c61a362262f9715036ff827975$

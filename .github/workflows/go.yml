@@ -22,7 +22,7 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - uses: actions/setup-go@v6
       with:
@@ -43,4 +43,4 @@ jobs:
         done
 
 # based on: github.com/koron-go/_skeleton/.github/workflows/go.yml
-# $Hash:f6e26da7ac7beb9f6537cdc2ca874387c7f0208429fa08e84c8e489c$
+# $Hash:5c453adb7ee86afc50e6bbb626326f86d1e9b7ebc92cc12d74227105$
