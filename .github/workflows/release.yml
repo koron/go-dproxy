@@ -162,15 +162,15 @@ jobs:
     needs:
     - build
     steps:
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with: { name: darwin_amd64 }
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with: { name: darwin_arm64 }
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with: { name: linux_amd64 }
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with: { name: linux_arm64 }
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with: { name: windows_amd64 }
     - run: ls -lafR
     - name: Release
