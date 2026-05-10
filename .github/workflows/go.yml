@@ -200,9 +200,9 @@ jobs:
         files: |
           *.tar.gz
           *.zip
-        fail_on_unmatched_files: true
+        fail_on_unmatched_files: ${{ needs.check.outputs.targets != '' }}
         generate_release_notes: true
         append_body: true
 
 # based on: github.com/koron-go/_skeleton/.github/workflows/go.yml
-# $Hash:0551d7918d833e1b21aecf150dde95f178e6fb0198cfe222542daefa$
+# $Hash:01f9cf8649094e7b57bcfa7103802dcd6953b81d214480fccdfdfbc4$
