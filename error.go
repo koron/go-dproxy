@@ -30,6 +30,9 @@ const (
 	// ErequiredType means the type mismatch against user required one.
 	// For example M() requires map, A() requires array.
 	ErequiredType
+
+	// EinvalidValue means proxy can't treat the value.
+	EinvalidValue
 )
 
 func (et ErrorType) String() string {
@@ -48,6 +51,8 @@ func (et ErrorType) String() string {
 		return "EinvalidQuery"
 	case ErequiredType:
 		return "ErequiredType"
+	case EinvalidValue:
+		return "EinvalidValue"
 	default:
 		return "Eunknown"
 	}
@@ -205,6 +210,9 @@ func (p *errorProxy) Error() string {
 	case ErequiredType:
 		return fmt.Sprintf("not required types: required=%s actual=%s: %s",
 			p.expected.String(), p.actual.String(), p.FullAddress())
+	case EinvalidValue:
+		// FIXME: better error message.
+		return fmt.Sprintf("invalid value: %s: %s", p.infoStr, p.FullAddress())
 	default:
 		return fmt.Sprintf("unexpected: %s", p.FullAddress())
 	}

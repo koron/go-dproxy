@@ -33,13 +33,14 @@ func TestPointerInvalidQuery(t *testing.T) {
 
 func TestPointer(t *testing.T) {
 	f := func(q string, d, expected interface{}) {
+		t.Helper()
 		p := Pointer(d, q)
 		v, err := p.Value()
 		if err != nil {
 			t.Errorf("Pointer:%q for %+v failed: %s", q, d, err)
 			return
 		}
-		assertEquals(t, v, expected, "Pointer:%q for %+v", q, d)
+		assertEquals(t, expected, v)
 	}
 
 	v := parseJSON(`{
