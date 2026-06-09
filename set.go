@@ -1,6 +1,9 @@
 package dproxy
 
-import "strconv"
+import (
+	"reflect"
+	"strconv"
+)
 
 type setProxy struct {
 	values []any
@@ -38,10 +41,24 @@ func (p *setProxy) Int64Array() ([]int64, error) {
 		switch v := v.(type) {
 		case int:
 			r[i] = int64(v)
+		case int8:
+			r[i] = int64(v)
+		case int16:
+			r[i] = int64(v)
 		case int32:
 			r[i] = int64(v)
 		case int64:
 			r[i] = v
+		case uint:
+			r[i] = int64(v)
+		case uint8:
+			r[i] = int64(v)
+		case uint16:
+			r[i] = int64(v)
+		case uint32:
+			r[i] = int64(v)
+		case uint64:
+			r[i] = int64(v)
 		case float32:
 			r[i] = int64(v)
 		case float64:
@@ -59,9 +76,23 @@ func (p *setProxy) Float64Array() ([]float64, error) {
 		switch v := v.(type) {
 		case int:
 			r[i] = float64(v)
+		case int8:
+			r[i] = float64(v)
+		case int16:
+			r[i] = float64(v)
 		case int32:
 			r[i] = float64(v)
 		case int64:
+			r[i] = float64(v)
+		case uint:
+			r[i] = float64(v)
+		case uint8:
+			r[i] = float64(v)
+		case uint16:
+			r[i] = float64(v)
+		case uint32:
+			r[i] = float64(v)
+		case uint64:
 			r[i] = float64(v)
 		case float32:
 			r[i] = float64(v)
@@ -154,6 +185,15 @@ func (p *setProxy) Qc(k string) ProxySet {
 			if w, ok := v[k]; ok {
 				r = append(r, w)
 			}
+		default:
+			rv := reflect.ValueOf(v)
+			if rv.IsValid() && rv.Kind() == reflect.Map {
+				for _, key := range rv.MapKeys() {
+					if key.Kind() == reflect.String && key.String() == k {
+						r = append(r, rv.MapIndex(key).Interface())
+					}
+				}
+			}
 		}
 	}
 	return &setProxy{
@@ -187,6 +227,25 @@ func findAllImpl(v any, k string, r []any) []any {
 	case []any:
 		for _, w := range v {
 			r = findAllImpl(w, k, r)
+		}
+	default:
+		rv := reflect.ValueOf(v)
+		if !rv.IsValid() {
+			return r
+		}
+		switch rv.Kind() {
+		case reflect.Map:
+			for _, key := range rv.MapKeys() {
+				w := rv.MapIndex(key)
+				if key.Kind() == reflect.String && key.String() == k {
+					r = append(r, w.Interface())
+				}
+				r = findAllImpl(w.Interface(), k, r)
+			}
+		case reflect.Slice, reflect.Array:
+			for i := 0; i < rv.Len(); i++ {
+				r = findAllImpl(rv.Index(i).Interface(), k, r)
+			}
 		}
 	}
 	return r

@@ -1,6 +1,7 @@
 package dproxy
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 )
@@ -39,10 +40,24 @@ func (p *valueProxy) Int64() (int64, error) {
 	switch v := p.value.(type) {
 	case int:
 		return int64(v), nil
+	case int8:
+		return int64(v), nil
+	case int16:
+		return int64(v), nil
 	case int32:
 		return int64(v), nil
 	case int64:
 		return v, nil
+	case uint:
+		return int64(v), nil
+	case uint8:
+		return int64(v), nil
+	case uint16:
+		return int64(v), nil
+	case uint32:
+		return int64(v), nil
+	case uint64:
+		return int64(v), nil
 	case float32:
 		return int64(v), nil
 	case float64:
@@ -70,9 +85,23 @@ func (p *valueProxy) Float64() (float64, error) {
 	switch v := p.value.(type) {
 	case int:
 		return float64(v), nil
+	case int8:
+		return float64(v), nil
+	case int16:
+		return float64(v), nil
 	case int32:
 		return float64(v), nil
 	case int64:
+		return float64(v), nil
+	case uint:
+		return float64(v), nil
+	case uint8:
+		return float64(v), nil
+	case uint16:
+		return float64(v), nil
+	case uint32:
+		return float64(v), nil
+	case uint64:
 		return float64(v), nil
 	case float32:
 		return float64(v), nil
@@ -170,14 +199,50 @@ func (p *valueProxy) P(q string) Proxy {
 }
 
 func (p *valueProxy) ProxySet() ProxySet {
-	switch v := p.value.(type) {
-	case []any:
+	if v, ok := p.value.([]any); ok {
 		return &setProxy{
 			values: v,
 			parent: p,
 		}
-	default:
-		return typeError(p, Tarray, v)
+	}
+	if rv := reflect.ValueOf(p.value); rv.IsValid() {
+		switch rv.Kind() {
+		case reflect.Map:
+			return collectMapElements(p, rv)
+		case reflect.Slice, reflect.Array:
+			return collectSliceElements(p, rv)
+		}
+	}
+	return &errorProxy{
+		errorType: EconvertFailure,
+		parent:    p,
+		infoStr:   fmt.Sprintf("%s is not supported for set", detectType(p.value)),
+	}
+}
+
+func collectMapElements(p *valueProxy, rv reflect.Value) ProxySet {
+	values := make([]any, 0, rv.Len())
+	iter := rv.MapRange()
+	for iter.Next() {
+		values = append(values, iter.Value().Interface())
+	}
+	return &setProxy{
+		values: values,
+		parent: p,
+		label:  "{}",
+	}
+}
+
+func collectSliceElements(p *valueProxy, rv reflect.Value) ProxySet {
+	n := rv.Len()
+	values := make([]any, n)
+	for i := 0; i < n; i++ {
+		values[i] = rv.Index(i).Interface()
+	}
+	return &setProxy{
+		values: values,
+		parent: p,
+		label:  "[]",
 	}
 }
 

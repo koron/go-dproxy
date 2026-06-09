@@ -2,6 +2,7 @@ package dproxy
 
 import (
 	"errors"
+	"sort"
 	"testing"
 )
 
@@ -46,7 +47,14 @@ func TestValueMap(t *testing.T) {
 
 func TestValueInt64(t *testing.T) {
 	assertQuery(New(any(int(42))).Int64())(t, int64(42))
+	assertQuery(New(any(int8(42))).Int64())(t, int64(42))
+	assertQuery(New(any(int16(42))).Int64())(t, int64(42))
 	assertQuery(New(any(int32(42))).Int64())(t, int64(42))
+	assertQuery(New(any(uint(42))).Int64())(t, int64(42))
+	assertQuery(New(any(uint8(42))).Int64())(t, int64(42))
+	assertQuery(New(any(uint16(42))).Int64())(t, int64(42))
+	assertQuery(New(any(uint32(42))).Int64())(t, int64(42))
+	assertQuery(New(any(uint64(42))).Int64())(t, int64(42))
 	assertQuery(New(any(float32(42))).Int64())(t, int64(42))
 
 	assertQuery(New(customInt64er{val: 99}).Int64())(t, int64(99))
@@ -60,8 +68,15 @@ func TestValueInt64(t *testing.T) {
 
 func TestValueFloat64(t *testing.T) {
 	assertQuery(New(any(int(42))).Float64())(t, float64(42))
+	assertQuery(New(any(int8(42))).Float64())(t, float64(42))
+	assertQuery(New(any(int16(42))).Float64())(t, float64(42))
 	assertQuery(New(any(int32(42))).Float64())(t, float64(42))
 	assertQuery(New(any(int64(42))).Float64())(t, float64(42))
+	assertQuery(New(any(uint(42))).Float64())(t, float64(42))
+	assertQuery(New(any(uint8(42))).Float64())(t, float64(42))
+	assertQuery(New(any(uint16(42))).Float64())(t, float64(42))
+	assertQuery(New(any(uint32(42))).Float64())(t, float64(42))
+	assertQuery(New(any(uint64(42))).Float64())(t, float64(42))
 	assertQuery(New(any(float32(1.5))).Float64())(t, float64(1.5))
 
 	assertQuery(New(customFloat64er{val: 3.14}).Float64())(t, float64(3.14))
@@ -83,9 +98,99 @@ func TestValueString_error(t *testing.T) {
 		t, "not matched types: expected=string actual=int64: (root)")
 }
 
-func TestValueProxySet_error(t *testing.T) {
-	assertQerror(New("not array").ProxySet().BoolArray())(
-		t, "not matched types: expected=array actual=string: (root)")
+func TestValueProxySet_string(t *testing.T) {
+	assertQerror(New("not container").ProxySet().BoolArray())(
+		t, "convert error: string is not supported for set: (root)")
+}
+
+func TestValueProxySet_map(t *testing.T) {
+	v := map[string]any{"a": int64(1), "b": int64(2), "c": int64(3)}
+	ps := New(v).ProxySet()
+	assertEqual(t, ps.Len(), 3)
+
+	got, err := ps.Int64Array()
+	if err != nil {
+		t.Fatal(err)
+	}
+	sort.Slice(got, func(i, j int) bool { return got[i] < got[j] })
+	assertEqual(t, got, []int64{1, 2, 3})
+}
+
+type wrappedMap2 map[string]any
+
+func TestValueProxySet_wrappedMap(t *testing.T) {
+	v := wrappedMap2{"x": int64(10), "y": int64(20)}
+	ps := New(v).ProxySet()
+	assertEqual(t, ps.Len(), 2)
+
+	got, err := ps.Int64Array()
+	if err != nil {
+		t.Fatal(err)
+	}
+	sort.Slice(got, func(i, j int) bool { return got[i] < got[j] })
+	assertEqual(t, got, []int64{10, 20})
+}
+
+func TestValueProxySet_genericMap(t *testing.T) {
+	v := map[string]int{"a": 1, "b": 2, "c": 3}
+	ps := New(v).ProxySet()
+	assertEqual(t, ps.Len(), 3)
+
+	got, err := ps.Int64Array()
+	if err != nil {
+		t.Fatal(err)
+	}
+	sort.Slice(got, func(i, j int) bool { return got[i] < got[j] })
+	assertEqual(t, got, []int64{1, 2, 3})
+}
+
+func TestValueProxySet_intKeyMap(t *testing.T) {
+	v := map[int]string{1: "one", 2: "two"}
+	ps := New(v).ProxySet()
+	assertEqual(t, ps.Len(), 2)
+
+	got, err := ps.StringArray()
+	if err != nil {
+		t.Fatal(err)
+	}
+	sort.Slice(got, func(i, j int) bool { return got[i] < got[j] })
+	assertEqual(t, got, []string{"one", "two"})
+}
+
+func TestValueProxySet_intSlice(t *testing.T) {
+	v := []int{10, 20, 30}
+	ps := New(v).ProxySet()
+	assertEqual(t, ps.Len(), 3)
+
+	got, err := ps.Int64Array()
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertEqual(t, got, []int64{10, 20, 30})
+}
+
+func TestValueProxySet_stringSlice(t *testing.T) {
+	v := []string{"a", "b", "c"}
+	ps := New(v).ProxySet()
+	assertEqual(t, ps.Len(), 3)
+
+	got, err := ps.StringArray()
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertEqual(t, got, []string{"a", "b", "c"})
+}
+
+func TestValueProxySet_float64Slice(t *testing.T) {
+	v := []float64{1.5, 2.5}
+	ps := New(v).ProxySet()
+	assertEqual(t, ps.Len(), 2)
+
+	got, err := ps.Float64Array()
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertEqual(t, got, []float64{1.5, 2.5})
 }
 
 func TestValueA_outOfBounds(t *testing.T) {

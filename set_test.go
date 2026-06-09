@@ -1,6 +1,9 @@
 package dproxy
 
-import "testing"
+import (
+	"sort"
+	"testing"
+)
 
 func TestSet(t *testing.T) {
 	v := parseJSON(`{
@@ -55,8 +58,15 @@ func TestSet_Int64Array(t *testing.T) {
 	want := []int64{1, 2, 3, 4, 5}
 
 	assertQuery(NewSet(makeArray[int](1, 2, 3, 4, 5)).Int64Array())(t, want)
+	assertQuery(NewSet(makeArray[int8](1, 2, 3, 4, 5)).Int64Array())(t, want)
+	assertQuery(NewSet(makeArray[int16](1, 2, 3, 4, 5)).Int64Array())(t, want)
 	assertQuery(NewSet(makeArray[int32](1, 2, 3, 4, 5)).Int64Array())(t, want)
 	assertQuery(NewSet(makeArray[int64](1, 2, 3, 4, 5)).Int64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint](1, 2, 3, 4, 5)).Int64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint8](1, 2, 3, 4, 5)).Int64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint16](1, 2, 3, 4, 5)).Int64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint32](1, 2, 3, 4, 5)).Int64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint64](1, 2, 3, 4, 5)).Int64Array())(t, want)
 	assertQuery(NewSet(makeArray[float32](1, 2, 3, 4, 5)).Int64Array())(t, want)
 	assertQuery(NewSet(makeArray[float64](1, 2, 3, 4, 5)).Int64Array())(t, want)
 
@@ -67,8 +77,15 @@ func TestSet_Float64Array(t *testing.T) {
 	want := []float64{0.0, 2.0, 4.0, 6.0, 8.0}
 
 	assertQuery(NewSet(makeArray[int](0, 2, 4, 6, 8)).Float64Array())(t, want)
+	assertQuery(NewSet(makeArray[int8](0, 2, 4, 6, 8)).Float64Array())(t, want)
+	assertQuery(NewSet(makeArray[int16](0, 2, 4, 6, 8)).Float64Array())(t, want)
 	assertQuery(NewSet(makeArray[int32](0, 2, 4, 6, 8)).Float64Array())(t, want)
 	assertQuery(NewSet(makeArray[int64](0, 2, 4, 6, 8)).Float64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint](0, 2, 4, 6, 8)).Float64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint8](0, 2, 4, 6, 8)).Float64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint16](0, 2, 4, 6, 8)).Float64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint32](0, 2, 4, 6, 8)).Float64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint64](0, 2, 4, 6, 8)).Float64Array())(t, want)
 	assertQuery(NewSet(makeArray[float32](0, 2, 4, 6, 8)).Float64Array())(t, want)
 	assertQuery(NewSet(makeArray[float64](0, 2, 4, 6, 8)).Float64Array())(t, want)
 
@@ -163,4 +180,43 @@ func TestSet_Q_onSet(t *testing.T) {
 
 	assertQuery(New(v).ProxySet().Q("city").StringArray())(
 		t, []string{"NYC", "LA"})
+}
+
+func TestSet_Q_genericMap(t *testing.T) {
+	v := []map[string]int{{"x": 1, "y": 2}, {"x": 3}}
+	assertQuery(New(v).ProxySet().Q("x").Int64Array())(
+		t, []int64{1, 3})
+}
+
+func TestSet_Qc_genericMap(t *testing.T) {
+	v := []map[string]int{{"x": 1, "y": 2}, {"x": 3}}
+	assertQuery(New(v).ProxySet().Qc("x").Int64Array())(
+		t, []int64{1, 3})
+}
+
+func TestSet_Qc_genericMap_missing(t *testing.T) {
+	v := []map[string]int{{"x": 1}, {"y": 2}}
+	assertQuery(New(v).ProxySet().Qc("x").Int64Array())(
+		t, []int64{1})
+}
+
+func TestSet_Q_genericIntMap(t *testing.T) {
+	v := map[int]string{1: "one", 2: "two", 3: "three"}
+	ps := New(v).ProxySet()
+	assertEqual(t, ps.Len(), 3)
+	got, err := ps.StringArray()
+	if err != nil {
+		t.Fatal(err)
+	}
+	sort.Slice(got, func(i, j int) bool { return got[i] < got[j] })
+	assertEqual(t, got, []string{"one", "three", "two"})
+}
+
+func TestSet_Q_deepGeneric(t *testing.T) {
+	v := []map[string]map[string]int{
+		{"a": {"x": 10}},
+		{"a": {"x": 20}},
+	}
+	assertQuery(New(v).ProxySet().Q("x").Int64Array())(
+		t, []int64{10, 20})
 }

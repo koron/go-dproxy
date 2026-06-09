@@ -1,9 +1,9 @@
 package dproxy
 
 type frame interface {
-	// parentFrame returns parent frame.
+	// parentFrame returns the parent frame.
 	parentFrame() frame
-	// frameLabel return label of frame.
+	// frameLabel returns the label of the frame.
 	frameLabel() string
 }
 
