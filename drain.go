@@ -30,7 +30,7 @@ func (d *Drain) All() []error {
 }
 
 // CombineErrors returns an error which combined all stored errors.  Return nil
-// if not erros stored.
+// if no errors stored.
 func (d *Drain) CombineErrors() error {
 	if d == nil || len(d.errors) == 0 {
 		return nil
