@@ -46,7 +46,14 @@ func TestValueMap(t *testing.T) {
 
 func TestValueInt64(t *testing.T) {
 	assertQuery(New(any(int(42))).Int64())(t, int64(42))
+	assertQuery(New(any(int8(42))).Int64())(t, int64(42))
+	assertQuery(New(any(int16(42))).Int64())(t, int64(42))
 	assertQuery(New(any(int32(42))).Int64())(t, int64(42))
+	assertQuery(New(any(uint(42))).Int64())(t, int64(42))
+	assertQuery(New(any(uint8(42))).Int64())(t, int64(42))
+	assertQuery(New(any(uint16(42))).Int64())(t, int64(42))
+	assertQuery(New(any(uint32(42))).Int64())(t, int64(42))
+	assertQuery(New(any(uint64(42))).Int64())(t, int64(42))
 	assertQuery(New(any(float32(42))).Int64())(t, int64(42))
 
 	assertQuery(New(customInt64er{val: 99}).Int64())(t, int64(99))
@@ -60,8 +67,15 @@ func TestValueInt64(t *testing.T) {
 
 func TestValueFloat64(t *testing.T) {
 	assertQuery(New(any(int(42))).Float64())(t, float64(42))
+	assertQuery(New(any(int8(42))).Float64())(t, float64(42))
+	assertQuery(New(any(int16(42))).Float64())(t, float64(42))
 	assertQuery(New(any(int32(42))).Float64())(t, float64(42))
 	assertQuery(New(any(int64(42))).Float64())(t, float64(42))
+	assertQuery(New(any(uint(42))).Float64())(t, float64(42))
+	assertQuery(New(any(uint8(42))).Float64())(t, float64(42))
+	assertQuery(New(any(uint16(42))).Float64())(t, float64(42))
+	assertQuery(New(any(uint32(42))).Float64())(t, float64(42))
+	assertQuery(New(any(uint64(42))).Float64())(t, float64(42))
 	assertQuery(New(any(float32(1.5))).Float64())(t, float64(1.5))
 
 	assertQuery(New(customFloat64er{val: 3.14}).Float64())(t, float64(3.14))

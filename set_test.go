@@ -55,8 +55,15 @@ func TestSet_Int64Array(t *testing.T) {
 	want := []int64{1, 2, 3, 4, 5}
 
 	assertQuery(NewSet(makeArray[int](1, 2, 3, 4, 5)).Int64Array())(t, want)
+	assertQuery(NewSet(makeArray[int8](1, 2, 3, 4, 5)).Int64Array())(t, want)
+	assertQuery(NewSet(makeArray[int16](1, 2, 3, 4, 5)).Int64Array())(t, want)
 	assertQuery(NewSet(makeArray[int32](1, 2, 3, 4, 5)).Int64Array())(t, want)
 	assertQuery(NewSet(makeArray[int64](1, 2, 3, 4, 5)).Int64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint](1, 2, 3, 4, 5)).Int64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint8](1, 2, 3, 4, 5)).Int64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint16](1, 2, 3, 4, 5)).Int64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint32](1, 2, 3, 4, 5)).Int64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint64](1, 2, 3, 4, 5)).Int64Array())(t, want)
 	assertQuery(NewSet(makeArray[float32](1, 2, 3, 4, 5)).Int64Array())(t, want)
 	assertQuery(NewSet(makeArray[float64](1, 2, 3, 4, 5)).Int64Array())(t, want)
 
@@ -67,8 +74,15 @@ func TestSet_Float64Array(t *testing.T) {
 	want := []float64{0.0, 2.0, 4.0, 6.0, 8.0}
 
 	assertQuery(NewSet(makeArray[int](0, 2, 4, 6, 8)).Float64Array())(t, want)
+	assertQuery(NewSet(makeArray[int8](0, 2, 4, 6, 8)).Float64Array())(t, want)
+	assertQuery(NewSet(makeArray[int16](0, 2, 4, 6, 8)).Float64Array())(t, want)
 	assertQuery(NewSet(makeArray[int32](0, 2, 4, 6, 8)).Float64Array())(t, want)
 	assertQuery(NewSet(makeArray[int64](0, 2, 4, 6, 8)).Float64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint](0, 2, 4, 6, 8)).Float64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint8](0, 2, 4, 6, 8)).Float64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint16](0, 2, 4, 6, 8)).Float64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint32](0, 2, 4, 6, 8)).Float64Array())(t, want)
+	assertQuery(NewSet(makeArray[uint64](0, 2, 4, 6, 8)).Float64Array())(t, want)
 	assertQuery(NewSet(makeArray[float32](0, 2, 4, 6, 8)).Float64Array())(t, want)
 	assertQuery(NewSet(makeArray[float64](0, 2, 4, 6, 8)).Float64Array())(t, want)
 

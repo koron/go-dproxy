@@ -37,7 +37,7 @@ func detectType(v any) Type {
 	switch v.(type) {
 	case bool:
 		return Tbool
-	case int, int32, int64:
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, uintptr:
 		return Tint64
 	case float32, float64:
 		return Tfloat64

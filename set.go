@@ -38,10 +38,24 @@ func (p *setProxy) Int64Array() ([]int64, error) {
 		switch v := v.(type) {
 		case int:
 			r[i] = int64(v)
+		case int8:
+			r[i] = int64(v)
+		case int16:
+			r[i] = int64(v)
 		case int32:
 			r[i] = int64(v)
 		case int64:
 			r[i] = v
+		case uint:
+			r[i] = int64(v)
+		case uint8:
+			r[i] = int64(v)
+		case uint16:
+			r[i] = int64(v)
+		case uint32:
+			r[i] = int64(v)
+		case uint64:
+			r[i] = int64(v)
 		case float32:
 			r[i] = int64(v)
 		case float64:
@@ -59,9 +73,23 @@ func (p *setProxy) Float64Array() ([]float64, error) {
 		switch v := v.(type) {
 		case int:
 			r[i] = float64(v)
+		case int8:
+			r[i] = float64(v)
+		case int16:
+			r[i] = float64(v)
 		case int32:
 			r[i] = float64(v)
 		case int64:
+			r[i] = float64(v)
+		case uint:
+			r[i] = float64(v)
+		case uint8:
+			r[i] = float64(v)
+		case uint16:
+			r[i] = float64(v)
+		case uint32:
+			r[i] = float64(v)
+		case uint64:
 			r[i] = float64(v)
 		case float32:
 			r[i] = float64(v)
