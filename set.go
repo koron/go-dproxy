@@ -3,7 +3,7 @@ package dproxy
 import "strconv"
 
 type setProxy struct {
-	values []interface{}
+	values []any
 	parent frame
 	label  string
 }
@@ -87,11 +87,11 @@ func (p *setProxy) StringArray() ([]string, error) {
 	return r, nil
 }
 
-func (p *setProxy) ArrayArray() ([][]interface{}, error) {
-	r := make([][]interface{}, len(p.values))
+func (p *setProxy) ArrayArray() ([][]any, error) {
+	r := make([][]any, len(p.values))
 	for i, v := range p.values {
 		switch v := v.(type) {
-		case []interface{}:
+		case []any:
 			r[i] = v
 		default:
 			return nil, elementTypeError(p, i, Tarray, v)
@@ -100,11 +100,11 @@ func (p *setProxy) ArrayArray() ([][]interface{}, error) {
 	return r, nil
 }
 
-func (p *setProxy) MapArray() ([]map[string]interface{}, error) {
-	r := make([]map[string]interface{}, len(p.values))
+func (p *setProxy) MapArray() ([]map[string]any, error) {
+	r := make([]map[string]any, len(p.values))
 	for i, v := range p.values {
 		switch v := v.(type) {
-		case map[string]interface{}:
+		case map[string]any:
 			r[i] = v
 		default:
 			return nil, elementTypeError(p, i, Tmap, v)
@@ -147,10 +147,10 @@ func (p *setProxy) Q(k string) ProxySet {
 }
 
 func (p *setProxy) Qc(k string) ProxySet {
-	r := make([]interface{}, 0, len(p.values))
+	r := make([]any, 0, len(p.values))
 	for _, v := range p.values {
 		switch v := v.(type) {
-		case map[string]interface{}:
+		case map[string]any:
 			if w, ok := v[k]; ok {
 				r = append(r, w)
 			}
@@ -171,20 +171,20 @@ func (p *setProxy) frameLabel() string {
 	return p.label
 }
 
-func findAll(v interface{}, k string) []interface{} {
-	return findAllImpl(v, k, make([]interface{}, 0, 10))
+func findAll(v any, k string) []any {
+	return findAllImpl(v, k, make([]any, 0, 10))
 }
 
-func findAllImpl(v interface{}, k string, r []interface{}) []interface{} {
+func findAllImpl(v any, k string, r []any) []any {
 	switch v := v.(type) {
-	case map[string]interface{}:
+	case map[string]any:
 		for n, w := range v {
 			if n == k {
 				r = append(r, w)
 			}
 			r = findAllImpl(w, k, r)
 		}
-	case []interface{}:
+	case []any:
 		for _, w := range v {
 			r = findAllImpl(w, k, r)
 		}

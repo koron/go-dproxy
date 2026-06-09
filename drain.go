@@ -73,15 +73,15 @@ func (d *Drain) String(p Proxy) string {
 	return v
 }
 
-// Array returns []interface{} value and stores an error.
-func (d *Drain) Array(p Proxy) []interface{} {
+// Array returns []any value and stores an error.
+func (d *Drain) Array(p Proxy) []any {
 	v, err := p.Array()
 	d.put(err)
 	return v
 }
 
-// Map returns map[string]interface{} value and stores an error.
-func (d *Drain) Map(p Proxy) map[string]interface{} {
+// Map returns map[string]any value and stores an error.
+func (d *Drain) Map(p Proxy) map[string]any {
 	v, err := p.Map()
 	d.put(err)
 	return v
@@ -115,15 +115,15 @@ func (d *Drain) StringArray(ps ProxySet) []string {
 	return v
 }
 
-// ArrayArray returns [][]interface{} value and stores an error.
-func (d *Drain) ArrayArray(ps ProxySet) [][]interface{} {
+// ArrayArray returns [][]any value and stores an error.
+func (d *Drain) ArrayArray(ps ProxySet) [][]any {
 	v, err := ps.ArrayArray()
 	d.put(err)
 	return v
 }
 
-// MapArray returns []map[string]interface{} value and stores an error.
-func (d *Drain) MapArray(ps ProxySet) []map[string]interface{} {
+// MapArray returns []map[string]any value and stores an error.
+func (d *Drain) MapArray(ps ProxySet) []map[string]any {
 	v, err := ps.MapArray()
 	d.put(err)
 	return v

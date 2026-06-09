@@ -1,25 +1,49 @@
 package dproxy
 
 import (
-	"fmt"
-	"reflect"
+	"encoding/json"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
-func assertEquals(t *testing.T, actual, expected interface{}, format string, a ...interface{}) {
+func parseJSON(s string) any {
+	var v any
+	if err := json.Unmarshal([]byte(s), &v); err != nil {
+		panic(err)
+	}
+	return v
+}
+
+func assertEqual(t *testing.T, got, want any) {
 	t.Helper()
-	if !reflect.DeepEqual(actual, expected) {
-		msg := fmt.Sprintf(format, a...)
-		t.Errorf("not equal: %s\nexpect=%+v\nactual=%+v", msg, expected, actual)
+	if d := cmp.Diff(want, got); d != "" {
+		t.Errorf("not equal: -want +got\n%s", d)
 	}
 }
 
-func assertError(t *testing.T, err error, exp string) {
-	t.Helper()
-	if err == nil {
-		t.Fatalf("should fail with: %s", exp)
+func assertQuery[T any](got T, err error) func(*testing.T, T) {
+	return func(t *testing.T, want T) {
+		t.Helper()
+		if err != nil {
+			t.Errorf("query failed: %s", err)
+			return
+		}
+		if d := cmp.Diff(want, got); d != "" {
+			t.Errorf("unmatched query results: -want +got\n%s", d)
+		}
 	}
-	if act := err.Error(); act != exp {
-		t.Fatalf("unexpected error:\nexpect=%s\nactual=%s\n", exp, act)
+}
+
+func assertQerror[T any](got T, gotErr error) func(*testing.T, string) {
+	return func(t *testing.T, want string) {
+		t.Helper()
+		if gotErr == nil {
+			t.Errorf("query succeeded unexpectedly with return value: %v", got)
+			return
+		}
+		if d := cmp.Diff(want, gotErr.Error()); d != "" {
+			t.Errorf("unexpected failure: -want +got\n%s", d)
+		}
 	}
 }

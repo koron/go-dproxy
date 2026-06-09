@@ -4,7 +4,7 @@
 [![Actions/Go](https://github.com/koron/go-dproxy/workflows/Go/badge.svg)](https://github.com/koron/go-dproxy/actions?query=workflow%3AGo)
 [![Go Report Card](https://goreportcard.com/badge/github.com/koron/go-dproxy)](https://goreportcard.com/report/github.com/koron/go-dproxy)
 
-dProxy is a proxy to access `interface{}` (document) by simple query.
+dProxy is a proxy to access `any` (previously `interface{}`, document) by simple query.
 It is intented to be used with `json.Unmarshal()` or `json.NewDecorder()`.
 
 See codes for overview.
@@ -16,7 +16,7 @@ import (
   "github.com/koron/go-dproxy"
 )
 
-var v interface{}
+var v any
 json.Unmarshal([]byte(`{
   "cities": [ "tokyo", 100, "osaka", 200, "hakata", 300 ],
   "data": {
@@ -45,19 +45,19 @@ _, err = dproxy.New(v).M("data").M("kustom").String()
 
 ### Proxy
 
-1.  Wrap a value (`interface{}`) with `dproxy.New()` get `dproxy.Proxy`.
+1.  Wrap a value (`any`) with `dproxy.New()` get `dproxy.Proxy`.
 
     ```go
-    p := dproxy.New(v) // v should be a value of interface{}
+    p := dproxy.New(v) // v should be a value of any
     ```
 
-2.  Query as a map (`map[string]interface{}`)by `M()`, returns `dproxy.Proxy`.
+2.  Query as a map (`map[string]any`)by `M()`, returns `dproxy.Proxy`.
 
     ```go
     p.M("cities")
     ```
 
-3.  Query as an array (`[]interface{}`) with `A()`, returns `dproxy.Proxy`.
+3.  Query as an array (`[]any`) with `A()`, returns `dproxy.Proxy`.
 
     ```go
     p.A(3)
@@ -133,7 +133,7 @@ if err := d.CombineErrors(); err != nil {
 
 ### JSON Pointer
 
-JSON Pointer can be used to query `interface{}`
+JSON Pointer can be used to query `any`
 
 ```go
 v1, err := dproxy.New(v).P("/cities/0").Int64()

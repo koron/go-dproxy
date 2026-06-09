@@ -26,6 +26,6 @@ func pointer(p Proxy, q string) Proxy {
 }
 
 // Pointer returns a Proxy which pointed by JSON Pointer's query q
-func Pointer(v interface{}, q string) Proxy {
+func Pointer(v any, q string) Proxy {
 	return pointer(New(v), q)
 }
