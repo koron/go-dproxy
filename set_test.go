@@ -80,3 +80,87 @@ func TestSet_StringArray(t *testing.T) {
 
 	assertQerror(NewSet(makeArray[int64](1, 2, 3)).StringArray())(t, "not matched types: expected=string actual=int64: [0]")
 }
+
+func TestSet_ArrayArray(t *testing.T) {
+	v := []any{[]any{"a"}, []any{"b"}}
+	assertQuery(NewSet(v).ArrayArray())(t, [][]any{{"a"}, {"b"}})
+
+	assertQerror(NewSet(makeArray[string]("x", "y")).ArrayArray())(
+		t, "not matched types: expected=array actual=string: [0]")
+}
+
+func TestSet_MapArray(t *testing.T) {
+	v := []any{map[string]any{"x": int(1)}, map[string]any{"y": int(2)}}
+	assertQuery(NewSet(v).MapArray())(t, []map[string]any{{"x": int(1)}, {"y": int(2)}})
+
+	assertQerror(NewSet(makeArray[string]("x", "y")).MapArray())(
+		t, "not matched types: expected=map actual=string: [0]")
+}
+
+func TestSet_ProxyArray(t *testing.T) {
+	v := []any{int64(1), int64(2)}
+	proxies, err := NewSet(v).ProxyArray()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(proxies) != 2 {
+		t.Fatalf("expected 2 proxies, got %d", len(proxies))
+	}
+	assertQuery(proxies[0].Int64())(t, int64(1))
+	assertQuery(proxies[1].Int64())(t, int64(2))
+}
+
+func TestSet_A(t *testing.T) {
+	v := parseJSON(`[10, 20, 30]`)
+
+	assertQuery(New(v).ProxySet().A(0).Int64())(t, int64(10))
+	assertQuery(New(v).ProxySet().A(2).Int64())(t, int64(30))
+
+	assertQerror(New(v).ProxySet().A(-1).Int64())(
+		t, "not found: [-1]")
+
+	assertQerror(New(v).ProxySet().A(3).Int64())(
+		t, "not found: [3]")
+}
+
+func TestSet_Q(t *testing.T) {
+	v := parseJSON(`{
+		"items": [
+			{ "name": "Alice", "role": "admin" },
+			{ "name": "Bob",   "role": "user" },
+			{ "name": "Carol", "role": "admin" }
+		]
+	}`)
+
+	assertQuery(New(v).Q("role").StringArray())(
+		t, []string{"admin", "user", "admin"})
+}
+
+func TestSet_Qc(t *testing.T) {
+	v := parseJSON(`[
+		{ "name": "Alice", "age": 30 },
+		{ "name": "Bob" },
+		{ "name": "Carol", "age": 25 }
+	]`)
+
+	assertQuery(New(v).ProxySet().Qc("age").Int64Array())(
+		t, []int64{30, 25})
+}
+
+func TestSet_Qc_empty(t *testing.T) {
+	v := parseJSON(`[{"x": 1}, {"x": 2}]`)
+
+	assertQuery(New(v).ProxySet().Qc("missing").Int64Array())(
+		t, []int64{})
+}
+
+func TestSet_Q_onSet(t *testing.T) {
+	// setProxy.Q() does deep recursive search in each element of the set
+	v := parseJSON(`[
+		{"nested": {"city": "NYC"}},
+		{"nested": {"city": "LA"}}
+	]`)
+
+	assertQuery(New(v).ProxySet().Q("city").StringArray())(
+		t, []string{"NYC", "LA"})
+}
