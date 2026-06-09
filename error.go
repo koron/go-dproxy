@@ -5,30 +5,30 @@ import (
 	"strconv"
 )
 
-// ErrorType is type of errors
+// ErrorType is the type of an error.
 type ErrorType int
 
 const (
-	// Etype means expected type is not matched with actual.
+	// Etype means the expected type does not match the actual type.
 	Etype ErrorType = iota + 1
 
-	// Enotfound means key or index doesn't exist.
+	// Enotfound means the key or index does not exist.
 	Enotfound
 
-	// EmapNorArray means target is not a map nor an array (for JSON Pointer)
+	// EmapNorArray means the target is neither a map nor an array (for JSON Pointer).
 	EmapNorArray
 
-	// EconvertFailure means value conversion is failed.
+	// EconvertFailure means the value conversion failed.
 	EconvertFailure
 
-	// EinvalidIndex means token is invalid as index (for JSON Pointer)
+	// EinvalidIndex means the token is invalid as an index (for JSON Pointer).
 	EinvalidIndex
 
-	// EinvalidQuery means query is invalid as JSON Pointer.
+	// EinvalidQuery means the query is invalid as a JSON Pointer.
 	EinvalidQuery
 
-	// ErequiredType means the type mismatch against user required one.
-	// For example M() requires map, A() requires array.
+	// ErequiredType means the actual type does not match the required type.
+	// For example, M() requires a map, A() requires an array.
 	ErequiredType
 )
 
@@ -53,12 +53,12 @@ func (et ErrorType) String() string {
 	}
 }
 
-// Error get detail information of the errror.
+// Error provides detailed information about an error.
 type Error interface {
-	// ErrorType returns type of error.
+	// ErrorType returns the type of error.
 	ErrorType() ErrorType
 
-	// FullAddress returns query string where cause first error.
+	// FullAddress returns the query string that caused the first error.
 	FullAddress() string
 }
 

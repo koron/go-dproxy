@@ -1,35 +1,35 @@
 package dproxy
 
-// Type is type of value.
+// Type is the type of a value.
 type Type int
 
 const (
-	// Tunknown shows value is not supported.
+	// Tunknown indicates the value is not supported.
 	Tunknown Type = iota
 
-	// Tnil shows value is nil.
+	// Tnil indicates the value is nil.
 	Tnil
 
-	// Tbool shows value is bool.
+	// Tbool indicates the value is a bool.
 	Tbool
 
-	// Tint64 shows value is int64.
+	// Tint64 indicates the value is an int64.
 	Tint64
 
-	// Tfloat64 shows value is float64.
+	// Tfloat64 indicates the value is a float64.
 	Tfloat64
 
-	// Tstring shows value is string.
+	// Tstring indicates the value is a string.
 	Tstring
 
-	// Tarray shows value is an array ([]any)
+	// Tarray indicates the value is an array ([]any).
 	Tarray
 
-	// Tmap shows value is a map (map[string]any)
+	// Tmap indicates the value is a map (map[string]any).
 	Tmap
 )
 
-// detectType returns type of a value.
+// detectType returns the type of a value.
 func detectType(v any) Type {
 	if v == nil {
 		return Tnil
