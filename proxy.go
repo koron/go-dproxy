@@ -36,7 +36,7 @@ type Proxy interface {
 	// P returns which pointed by JSON Pointer's query q.
 	P(q string) Proxy
 
-	// ProxySet returns a set which converted from its array value.
+	// ProxySet returns a set from its value (array, slice, or map).
 	ProxySet() ProxySet
 
 	// Q returns set of all items which property matchs with k.
@@ -81,10 +81,10 @@ type ProxySet interface {
 	// A returns an proxy for index in the set.
 	A(n int) Proxy
 
-	// Q returns set of all items which property matchs with k.
+	// Q returns set of all items which property matches k.
 	Q(k string) ProxySet
 
-	// Qc returns set of property of all items.
+	// Qc returns set of values of property k from each item.
 	Qc(k string) ProxySet
 
 	// Proxy implements frame.

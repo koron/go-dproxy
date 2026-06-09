@@ -1,6 +1,9 @@
 package dproxy
 
-import "strconv"
+import (
+	"reflect"
+	"strconv"
+)
 
 type setProxy struct {
 	values []any
@@ -182,6 +185,15 @@ func (p *setProxy) Qc(k string) ProxySet {
 			if w, ok := v[k]; ok {
 				r = append(r, w)
 			}
+		default:
+			rv := reflect.ValueOf(v)
+			if rv.IsValid() && rv.Kind() == reflect.Map {
+				for _, key := range rv.MapKeys() {
+					if key.Kind() == reflect.String && key.String() == k {
+						r = append(r, rv.MapIndex(key).Interface())
+					}
+				}
+			}
 		}
 	}
 	return &setProxy{
@@ -215,6 +227,25 @@ func findAllImpl(v any, k string, r []any) []any {
 	case []any:
 		for _, w := range v {
 			r = findAllImpl(w, k, r)
+		}
+	default:
+		rv := reflect.ValueOf(v)
+		if !rv.IsValid() {
+			return r
+		}
+		switch rv.Kind() {
+		case reflect.Map:
+			for _, key := range rv.MapKeys() {
+				w := rv.MapIndex(key)
+				if key.Kind() == reflect.String && key.String() == k {
+					r = append(r, w.Interface())
+				}
+				r = findAllImpl(w.Interface(), k, r)
+			}
+		case reflect.Slice, reflect.Array:
+			for i := 0; i < rv.Len(); i++ {
+				r = findAllImpl(rv.Index(i).Interface(), k, r)
+			}
 		}
 	}
 	return r

@@ -1,6 +1,9 @@
 package dproxy
 
-import "testing"
+import (
+	"sort"
+	"testing"
+)
 
 func TestSet(t *testing.T) {
 	v := parseJSON(`{
@@ -177,4 +180,43 @@ func TestSet_Q_onSet(t *testing.T) {
 
 	assertQuery(New(v).ProxySet().Q("city").StringArray())(
 		t, []string{"NYC", "LA"})
+}
+
+func TestSet_Q_genericMap(t *testing.T) {
+	v := []map[string]int{{"x": 1, "y": 2}, {"x": 3}}
+	assertQuery(New(v).ProxySet().Q("x").Int64Array())(
+		t, []int64{1, 3})
+}
+
+func TestSet_Qc_genericMap(t *testing.T) {
+	v := []map[string]int{{"x": 1, "y": 2}, {"x": 3}}
+	assertQuery(New(v).ProxySet().Qc("x").Int64Array())(
+		t, []int64{1, 3})
+}
+
+func TestSet_Qc_genericMap_missing(t *testing.T) {
+	v := []map[string]int{{"x": 1}, {"y": 2}}
+	assertQuery(New(v).ProxySet().Qc("x").Int64Array())(
+		t, []int64{1})
+}
+
+func TestSet_Q_genericIntMap(t *testing.T) {
+	v := map[int]string{1: "one", 2: "two", 3: "three"}
+	ps := New(v).ProxySet()
+	assertEqual(t, ps.Len(), 3)
+	got, err := ps.StringArray()
+	if err != nil {
+		t.Fatal(err)
+	}
+	sort.Slice(got, func(i, j int) bool { return got[i] < got[j] })
+	assertEqual(t, got, []string{"one", "three", "two"})
+}
+
+func TestSet_Q_deepGeneric(t *testing.T) {
+	v := []map[string]map[string]int{
+		{"a": {"x": 10}},
+		{"a": {"x": 20}},
+	}
+	assertQuery(New(v).ProxySet().Q("x").Int64Array())(
+		t, []int64{10, 20})
 }
