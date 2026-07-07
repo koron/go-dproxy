@@ -2,7 +2,6 @@
 
 [![GoDoc](https://godoc.org/github.com/koron/go-dproxy?status.svg)](https://godoc.org/github.com/koron/go-dproxy)
 [![Actions/Go](https://github.com/koron/go-dproxy/workflows/Go/badge.svg)](https://github.com/koron/go-dproxy/actions?query=workflow%3AGo)
-[![Go Report Card](https://goreportcard.com/badge/github.com/koron/go-dproxy)](https://goreportcard.com/report/github.com/koron/go-dproxy)
 
 dProxy is a proxy to access `any` (previously `interface{}`, document) by simple query.
 It is intented to be used with `json.Unmarshal()` or `json.NewDecorder()`.
