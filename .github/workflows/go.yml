@@ -115,7 +115,7 @@ jobs:
 
     - name: Start FreeBSD VM
       if: matrix.os == 'freebsd'
-      uses: vmactions/freebsd-vm@b84ab5559b5a1bb4b8ee2737d2506a16e1737636 # v1.4.8
+      uses: vmactions/freebsd-vm@5a72679103d223925653750faa878a143340fbd0 # v1.5.0
       with:
         usesh: true
         copyback: false
@@ -205,4 +205,4 @@ jobs:
         append_body: true
 
 # based on: github.com/koron-go/_skeleton/.github/workflows/go.yml
-# $Hash:84bd3edd870a01504581dbb7ae119f23940120ca7c3f4cf9f003c535$
+# $Hash:8ae311c1b13da299f3619c8a87ca2defe1bacb12acd300e6623e9ea2$
