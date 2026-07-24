@@ -5,14 +5,6 @@ version: 2
 
 updates:
 
-  - package-ecosystem: "github-actions" # See documentation for possible values
-    directory: "/" # Location of package manifests
-    schedule:
-      interval: "weekly"
-    groups:
-      ghthub-actions-group:
-        patterns: ["*"]
-
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
@@ -21,4 +13,4 @@ updates:
       go-all-dependencies:
         patterns: ["*"]
 
-# $Hash:2b8a69882cf27ad1ff43ff8a833decf3d0df54c1effeb8efb5bb8244$
+# $Hash:0ce5644667fe90c6d9b01d3e6dcdad0c6efbb981aac4f885fe0fb8c6$

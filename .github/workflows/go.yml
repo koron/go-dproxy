@@ -20,7 +20,7 @@ jobs:
     steps:
 
     - uses: actions/checkout@v7
-    - uses: actions/setup-go@v6
+    - uses: actions/setup-go@v7
       with:
         go-version: ${{ env.GO_VERSION }}
 
@@ -78,7 +78,7 @@ jobs:
 
     - uses: actions/checkout@v7
 
-    - uses: actions/setup-go@v6
+    - uses: actions/setup-go@v7
       with:
         go-version: ${{ env.GO_VERSION }}
 
@@ -115,7 +115,7 @@ jobs:
 
     - name: Start FreeBSD VM
       if: matrix.os == 'freebsd'
-      uses: vmactions/freebsd-vm@5a72679103d223925653750faa878a143340fbd0 # v1.5.0
+      uses: vmactions/freebsd-vm@77ed28d336d03fe19a3f4f7266c1d2c4714dd79d # v1.5.2
       with:
         usesh: true
         copyback: false
@@ -193,7 +193,7 @@ jobs:
         merge-multiple: true
     - run: ls -lafR
     - name: Release
-      uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
+      uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
       with:
         draft: true
         prerelease: ${{ contains(github.ref_name, '-alpha.') || contains(github.ref_name, '-beta.') }}
@@ -205,4 +205,4 @@ jobs:
         append_body: true
 
 # based on: github.com/koron-go/_skeleton/.github/workflows/go.yml
-# $Hash:8ae311c1b13da299f3619c8a87ca2defe1bacb12acd300e6623e9ea2$
+# $Hash:0475ee83d423e04e31d296083e06a755c63ebb4b3efe33f336275953$
