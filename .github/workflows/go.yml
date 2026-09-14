@@ -34,6 +34,9 @@ jobs:
         while read -r path dir; do
           [ -z "$path" ] && continue
           name=$(basename "$path")
+          if [[ "$name" =~ ^v[1-9][0-9]*$ ]]; then
+            name=$(basename "$(dirname "$path")")
+          fi
           if [ -f "$dir/.norelease" ] ; then
             printf "Skipped %s\t(%s), due to %s/.norelease found\n" "$name" "$dir" "$dir"
           else
@@ -115,7 +118,7 @@ jobs:
 
     - name: Start FreeBSD VM
       if: matrix.os == 'freebsd'
-      uses: vmactions/freebsd-vm@77ed28d336d03fe19a3f4f7266c1d2c4714dd79d # v1.5.2
+      uses: vmactions/freebsd-vm@f0552d3b69211736abd97f02ff3d4674c56b73b1 # v1.5.5
       with:
         usesh: true
         copyback: false
@@ -193,7 +196,7 @@ jobs:
         merge-multiple: true
     - run: ls -lafR
     - name: Release
-      uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
+      uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
       with:
         draft: true
         prerelease: ${{ contains(github.ref_name, '-alpha.') || contains(github.ref_name, '-beta.') }}
@@ -205,4 +208,4 @@ jobs:
         append_body: true
 
 # based on: github.com/koron-go/_skeleton/.github/workflows/go.yml
-# $Hash:0475ee83d423e04e31d296083e06a755c63ebb4b3efe33f336275953$
+# $Hash:73f33f49326938149baf451ff1ca1be3c58745717b6f9b9604fdbc01$
